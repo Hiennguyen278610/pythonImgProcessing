@@ -61,11 +61,11 @@ INSERT INTO chuc_vu (ma_chuc_vu, ma_phong, ten_chuc_vu) VALUES
 (6, '5', 'Chuyên viên marketing');
 
 INSERT INTO nhan_vien (ma_phong, ma_ngql, ma_chuc_vu, ho_ten_nhan_vien, ngay_sinh, so_dien_thoai, dia_chi, gioi_tinh, ngay_vao_lam, url_image) VALUES
-(1, NULL, 1, 'Nguyễn Văn A', '1985-05-20', '0909123456', '123 Đường A, Quận 1', 'nam', '2010-01-15', 'images/a.jpg'),
-(2, 1, 3, 'Trần Thị B', '1990-09-12', '0912345678', '456 Đường B, Quận 2', 'nu', '2015-06-01', 'images/b.jpg'),
-(3, 1, 4, 'Lê Văn C', '1992-11-25', '0923456789', '789 Đường C, Quận 3', 'nam', '2018-03-10', 'images/c.jpg'),
-(4, 2, 5, 'Phạm Hồng D', '1988-07-30', '0932123456', '321 Đường D, Quận 4', 'nu', '2012-10-20', 'images/d.jpg'),
-(5, 3, 6, 'Đỗ Thanh E', '1995-04-18', '0941234567', '654 Đường E, Quận 5', 'nam', '2020-08-05', 'images/e.jpg');
+(1, NULL, 1, 'Nguyễn Văn A', '1985-05-20', '0909123456', '123 Đường A, Quận 1', 'nam', '2010-01-15', 'faceImg/messi.jpg'),
+(2, 1, 3, 'Trần Thị B', '1990-09-12', '0912345678', '456 Đường B, Quận 2', 'nu', '2015-06-01', 'faceImg/goat.jpg'),
+(3, 1, 4, 'Lê Văn C', '1992-11-25', '0923456789', '789 Đường C, Quận 3', 'nam', '2018-03-10', 'faceImg/ronaldo.jpg'),
+(4, 2, 5, 'Phạm Hồng D', '1988-07-30', '0932123456', '321 Đường D, Quận 4', 'nu', '2012-10-20', 'faceImg/neymar.jpg'),
+(5, 3, 6, 'Đỗ Thanh E', '1995-04-18', '0941234567', '654 Đường E, Quận 5', 'nam', '2020-08-05', 'faceImg/dimaria.jpg');
 
 INSERT INTO hop_dong (ma_nhan_vien, thoi_han, ngay_ky, muc_luong) VALUES
 (1, '3 năm', '2020-01-01', 15000000.00),
