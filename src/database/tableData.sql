@@ -1,40 +1,101 @@
-SHOW DATABASES;
-DROP DATABASE IF EXISTS FaceRecognition;
-CREATE DATABASE IF NOT EXISTS FaceRecognition;
+DROP DATABASE IF EXISTS facerecognition;
+CREATE DATABASE IF NOT EXISTS facerecognition;
+USE facerecognition;
 
-USE FaceRecognition;
-
-CREATE TABLE IF NOT EXISTS Employee (
-    employeeID INT AUTO_INCREMENT PRIMARY KEY,
-    managerID INT,
-    roleID INT,
-    name VARCHAR(100) NOT NULL,
-    dob DATE,
-    phone VARCHAR(15) NOT NULL,
-    address VARCHAR(255),
-    gender VARCHAR(10),
-    startDate DATE,
-    FOREIGN KEY (managerID) REFERENCES Employee(employeeID) ON DELETE SET NULL
+CREATE TABLE nhan_vien (
+    ma_nhan_vien INT AUTO_INCREMENT PRIMARY KEY,
+    ma_phong INT not null,
+    ma_ngql INT,
+    ma_chuc_vu INT not null,
+    ho_ten_nhan_vien VARCHAR(100) not null,
+    ngay_sinh DATE not null,
+    so_dien_thoai VARCHAR(15) not null,
+    dia_chi VARCHAR(100) not null,
+    gioi_tinh enum("nam", "nu") not null,
+    ngay_vao_lam DATE not null,
+    url_image VARCHAR(255) not null
 );
 
-CREATE TABLE IF NOT EXISTS Contract (
-    contractID INT AUTO_INCREMENT PRIMARY KEY,
-    employeeID INT NOT NULL,
-    term VARCHAR(100) NOT NULL,
-    signingDate DATE NOT NULL,
-    salary DECIMAL(15,2) NOT NULL,
-    FOREIGN KEY (employeeID) REFERENCES Employee(employeeID) ON DELETE CASCADE
+CREATE TABLE cham_cong (
+    ma_nhan_vien INT not null,
+    ngay_cham_cong DATE not null,
+    gio_vao TIME not null,
+    gio_ra TIME not null,
+    img VARCHAR(255) not null,
+    PRIMARY KEY (ma_nhan_vien, ngay_cham_cong)
 );
 
-INSERT INTO Employee (employeeID, managerID, roleID, name, dob, phone, address, gender, startDate)
-VALUES  (1, NULL, 1, 'Admin User', '1990-01-01', '0123456789', 'Hà Nội', 'Nam', '2020-01-01'),
-        (2, 1, 2, 'Nguyễn Văn A', '1995-05-15', '0987654321', 'Hồ Chí Minh', 'Nam', '2021-03-15'),
-        (3, 1, 2, 'Trần Thị B', '1998-08-22', '0909123456', 'Đà Nẵng', 'Nữ', '2022-05-10');
+CREATE TABLE hop_dong (
+    ma_hop_dong INT AUTO_INCREMENT PRIMARY KEY,
+    ma_nhan_vien INT not null,
+    thoi_han VARCHAR(50) not null,
+    ngay_ky DATE not null,
+    muc_luong DECIMAL(15,2) not null
+);
 
--- Thêm dữ liệu mẫu
-INSERT INTO Contract (employeeID, term, signingDate, salary)
-VALUES  (1, '12 tháng', '2023-01-01', 15000000),
-        (2, '6 tháng', '2023-03-15', 12000000),
-        (3, '24 tháng', '2022-08-10', 10000000);
+CREATE TABLE phong (
+    ma_phong INT AUTO_INCREMENT PRIMARY KEY,
+    ma_truong_phong INT,
+    ten_phong VARCHAR(100) not null
+);
 
-SELECT * FROM Employee;
+CREATE TABLE chuc_vu (
+    ma_chuc_vu INT PRIMARY KEY,
+    ma_phong INT not null,
+    ten_chuc_vu VARCHAR(50) NOT NULL
+);
+
+INSERT INTO phong (ma_truong_phong, ten_phong) VALUES
+(1, 'Phòng Nhân sự'),
+(2, 'Phòng Kỹ thuật'),
+(3, 'Phòng Kinh doanh'),
+(4, 'Phòng Tài chính'),
+(5, 'Phòng Marketing');
+
+INSERT INTO chuc_vu (ma_chuc_vu, ma_phong, ten_chuc_vu) VALUES
+(1, '1', 'Trưởng phòng'),
+(2, '1', 'Nhân viên hành chính'),
+(3, '2', 'Kỹ sư phần mềm'),
+(4, '3', 'Nhân viên kinh doanh'),
+(5, '4', 'Kế toán'),
+(6, '5', 'Chuyên viên marketing');
+
+INSERT INTO nhan_vien (ma_phong, ma_ngql, ma_chuc_vu, ho_ten_nhan_vien, ngay_sinh, so_dien_thoai, dia_chi, gioi_tinh, ngay_vao_lam, url_image) VALUES
+(1, NULL, 1, 'Nguyễn Văn A', '1985-05-20', '0909123456', '123 Đường A, Quận 1', 'nam', '2010-01-15', 'images/a.jpg'),
+(2, 1, 3, 'Trần Thị B', '1990-09-12', '0912345678', '456 Đường B, Quận 2', 'nu', '2015-06-01', 'images/b.jpg'),
+(3, 1, 4, 'Lê Văn C', '1992-11-25', '0923456789', '789 Đường C, Quận 3', 'nam', '2018-03-10', 'images/c.jpg'),
+(4, 2, 5, 'Phạm Hồng D', '1988-07-30', '0932123456', '321 Đường D, Quận 4', 'nu', '2012-10-20', 'images/d.jpg'),
+(5, 3, 6, 'Đỗ Thanh E', '1995-04-18', '0941234567', '654 Đường E, Quận 5', 'nam', '2020-08-05', 'images/e.jpg');
+
+INSERT INTO hop_dong (ma_nhan_vien, thoi_han, ngay_ky, muc_luong) VALUES
+(1, '3 năm', '2020-01-01', 15000000.00),
+(2, '1 năm', '2022-07-15', 12000000.00),
+(3, '2 năm', '2021-09-10', 13000000.00),
+(4, '5 năm', '2015-03-25', 14000000.00),
+(5, '1 năm', '2024-01-10', 12500000.00);
+
+INSERT INTO cham_cong (ma_nhan_vien, ngay_cham_cong, gio_vao, gio_ra, img) VALUES
+(1, '2025-04-13', '08:00:00', '17:00:00', 'images/cc1.jpg'),
+(2, '2025-04-13', '08:15:00', '17:10:00', 'images/cc2.jpg'),
+(3, '2025-04-13', '08:05:00', '17:05:00', 'images/cc3.jpg'),
+(4, '2025-04-13', '07:55:00', '16:50:00', 'images/cc4.jpg'),
+(5, '2025-04-13', '08:10:00', '17:20:00', 'images/cc5.jpg');
+
+alter table chuc_vu
+    add constraint foreign key (ma_phong) references phong(ma_phong);
+
+alter table nhan_vien
+    add constraint foreign key (ma_chuc_vu) references chuc_vu(ma_chuc_vu),
+    add constraint foreign key (ma_ngql) references nhan_vien(ma_nhan_vien);
+
+alter table cham_cong
+    add constraint foreign key (ma_nhan_vien) references nhan_vien(ma_nhan_vien);
+
+alter table hop_dong
+    add constraint foreign key (ma_nhan_vien) references nhan_vien(ma_nhan_vien);
+
+select * from nhan_vien;
+select * from phong;
+select * from chuc_vu;
+select * from hop_dong;
+select * from cham_cong;
