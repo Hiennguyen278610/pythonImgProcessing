@@ -84,14 +84,14 @@ class AttendancePanel(customtkinter.CTkFrame):
         return frame
 
     def display_information(self, employee):
-        image_path = os.path.join("src", "..", "Resources", employee.urlImage)
+        image_path = os.path.join("src", "..", "Resources", employee.url_image)
         if os.path.exists(image_path):
             pil_image = Image.open(image_path)
             ctk_img = CTkImage(pil_image, size=(150, 150))
             self.imgEmployee.configure(image=ctk_img, text="")
             self.imgEmployee.image = ctk_img
-        self.nameEmployee.configure(text=f"Tên: {employee.name}")
-        self.idEmployee.configure(text=f"Mã nhân viên: {employee.employeeID}")
+        self.nameEmployee.configure(text=f"Tên: {employee.ho_ten_nhan_vien}")
+        self.idEmployee.configure(text=f"Mã nhân viên: {employee.ma_nhan_vien}")
         # position = PositionRespository.findById(employee.roleID)
         # self.positionEmployee.configure(f"Chức vụ: {position.ma_chuc_vu}")
         # self.departmentEmployee.configure(f"Phòng ban: {position.ma_phong}")

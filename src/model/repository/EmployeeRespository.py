@@ -48,15 +48,14 @@ class EmployeeRepository:
         employee = None
 
         try:
-            cursor.execute(query, int(ma_nhan_vien,))
+            cursor.execute(query, (int(ma_nhan_vien),))
             result = cursor.fetchone()
 
             if result:
-                (ma_nhan_vien, ma_phong, ma_ngql, ma_chuc_vu, ho_ten_nhan_vien, 
+                (ma_nhan_vien, ma_ngql, ma_chuc_vu, ho_ten_nhan_vien,
                 ngay_sinh, so_dien_thoai, dia_chi, gioi_tinh, ngay_vao_lam, url_image) = result
                 employee = Employee(
                     ma_nhan_vien=ma_nhan_vien,
-                    ma_phong=ma_phong,
                     ma_ngql=ma_ngql,
                     ma_chuc_vu=ma_chuc_vu,
                     ho_ten_nhan_vien=ho_ten_nhan_vien,
