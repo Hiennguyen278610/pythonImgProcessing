@@ -12,13 +12,13 @@ class EmployeeRepository:
     def findAll(self):
         connection = self.getConnection()
         cursor = connection.cursor()
-        query = """SELECT * FROM Employee"""
+        query = """SELECT * FROM nhan_vien"""
         employees = []
 
         try:
             cursor.execute(query)
             for (employeeID, managerID, roleID, name, dob,
-                 phone, address, gender, startDate) in cursor:
+                 phone, address, gender, startDate, urlImage) in cursor:
                 employee = Employee(
                     employeeID=employeeID,
                     managerID=managerID,
@@ -28,7 +28,8 @@ class EmployeeRepository:
                     phone=phone,
                     address=address,
                     gender=gender,
-                    startDate=startDate
+                    startDate=startDate,
+                    urlImage=urlImage
                 )
                 employees.append(employee)
         except mysql.connector.Error as err:
@@ -43,15 +44,15 @@ class EmployeeRepository:
     def findByID(self, employeeID):
         connection = self.getConnection()
         cursor = connection.cursor()
-        query = """SELECT * FROM nhan_vien WHERE employeeID = %s"""
+        query = """SELECT * FROM nhan_vien WHERE ma_nhan_vien = %s"""
         employee = None
 
         try:
-            cursor.execute(query, (employeeID,))
+            cursor.execute(query, (int(employeeID),))
             result = cursor.fetchone()
 
             if result:
-                (employeeID, managerID, roleID, name, dob, phone, address, gender, startDate, urlImg) = result
+                (employeeID, managerID, roleID, name, dob, phone, address, gender, startDate, urlImage) = result
                 employee = Employee(
                     employeeID=employeeID,
                     managerID=managerID,
@@ -62,7 +63,7 @@ class EmployeeRepository:
                     address=address,
                     gender=gender,
                     startDate=startDate,
-                    urlImg = urlImg
+                    urlImage = urlImage
                 )
         except mysql.connector.Error as err:
             print(f"Database error: {err}")

@@ -2,21 +2,24 @@ from tkinter import Image
 
 import customtkinter
 import cv2
+import os
 from customtkinter import CTkImage
 from PIL import Image, ImageDraw
-
-from src.model.entity.PositionEntity import Position
+from face_recognition import face_locations
+from src.model.repository.PositionRespository import PositionRespository
 from src.utils.viewExtention import getCenterInit
 from src.controller.AttendanceController import AttendanceController
+from src.service.AttendanceService import AttendanceService
 
 class AttendancePanel(customtkinter.CTkFrame):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
         self.controller = AttendanceController()
+        self.controller.loadData()
 
         self.grid_rowconfigure(0, weight=1)
-        self.grid_columnconfigure(0, weight=2)
-        self.grid_columnconfigure(2, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(2, weight=2)
 
         self.rightFrame = customtkinter.CTkFrame(self, fg_color="white")
         self.rightFrame.grid(row=0, column=2, padx=10, pady=10, sticky="nsew")
@@ -59,24 +62,39 @@ class AttendancePanel(customtkinter.CTkFrame):
     def recognize(self):
         ret, frame = self.cap.read()
         frame = cv2.flip(frame, 1)
+        employee = self.controller.attendance(frame)
+        frame = self.rectangelFace(frame)
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         img_pil = Image.fromarray(rgb_frame)
         img_pil = img_pil.resize((self.video.winfo_width(), self.video.winfo_height()))
-        ctk_img = CTkImage(light_image=img_pil, size=(800, 600))
+        ctk_img = CTkImage(light_image=img_pil, size=(760, 570))
         self.video.configure(image=ctk_img, text="")
         self.video.image = ctk_img
-        employee = self.controller.attendance(frame)
-        if employee:
+        if employee != None:
             self.display_information(employee)
-        else: self.after(30, self.recognize)
+            self.video.configure(image=ctk_img, text="")
+            self.video.image = ctk_img
+        else: self.after(10, self.recognize)
+
+    def rectangelFace(self, frame):
+        face_locations = self.controller.getLocation(frame)
+        for i, (top, right, bottom, left) in enumerate(face_locations):
+            top, right, bottom, left = top, right, bottom , left
+            cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 200), 2)
+        return frame
 
     def display_information(self, employee):
-        self.imgEmployee.configure(image=employee.urlImage)
-        self.nameEmployee.configure(f"Tên: {employee.name}")
-        self.idEmployee.configure(f"Mã nhân viên: {employee.employeeID}")
-        position = Position.findById(employee.roleId)
-        self.positionEmployee.configure(f"Chức vụ: {position.ma_chuc_vu}")
-        self.departmentEmployee.configure(f"Phòng ban: {position.ma_phong}")
+        image_path = os.path.join("src", "..", "Resources", employee.urlImage)
+        if os.path.exists(image_path):
+            pil_image = Image.open(image_path)
+            ctk_img = CTkImage(pil_image, size=(150, 150))
+            self.imgEmployee.configure(image=ctk_img, text="")
+            self.imgEmployee.image = ctk_img
+        self.nameEmployee.configure(text=f"Tên: {employee.name}")
+        self.idEmployee.configure(text=f"Mã nhân viên: {employee.employeeID}")
+        # position = PositionRespository.findById(employee.roleID)
+        # self.positionEmployee.configure(f"Chức vụ: {position.ma_chuc_vu}")
+        # self.departmentEmployee.configure(f"Phòng ban: {position.ma_phong}")
 
 class App(customtkinter.CTk):
     def __init__(self):

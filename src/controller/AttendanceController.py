@@ -11,3 +11,8 @@ class AttendanceController:
     def attendance(self, frame):
         return self.service.get_employee_attendance(frame)
 
+    def getLocation(self, frame):
+        return self.service.locationFace(frame)
+
+    def loadData(self):
+        self.service.load_known_faces()

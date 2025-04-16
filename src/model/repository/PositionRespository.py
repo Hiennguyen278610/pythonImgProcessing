@@ -10,7 +10,6 @@ class PositionRespository:
     def getConnection(self):
         return mysql.connector.connect(**self.config)
 
-    @staticmethod
     def findById(self, id):
         connection = self.getConnection()
         cursor = connection.cursor()
@@ -24,9 +23,9 @@ class PositionRespository:
             if result:
                 (ma_chuc_vu, ten_chuc_vu, ma_phong) = result
                 position = Position(
-                    ma_chuc_vu = ma_chuc_vu,
-                    ten_chuc_vu = ten_chuc_vu,
-                    ma_phong = ma_phong
+                    ma_chuc_vu=ma_chuc_vu,
+                    ten_chuc_vu=ten_chuc_vu,
+                    ma_phong=ma_phong
                 )
         except mysql.connector.Error as err:
             print(f"Database error: {err}")
