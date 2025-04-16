@@ -17,19 +17,20 @@ class EmployeeRepository:
 
         try:
             cursor.execute(query)
-            for (employeeID, managerID, roleID, name, dob,
-                 phone, address, gender, startDate, urlImage) in cursor:
+            for (ma_nhan_vien, ma_phong, ma_ngql, ma_chuc_vu, ho_ten_nhan_vien, 
+                ngay_sinh, so_dien_thoai, dia_chi, gioi_tinh, ngay_vao_lam, url_image) in cursor:
                 employee = Employee(
-                    employeeID=employeeID,
-                    managerID=managerID,
-                    roleID=roleID,
-                    name=name,
-                    dob=dob,
-                    phone=phone,
-                    address=address,
-                    gender=gender,
-                    startDate=startDate,
-                    urlImage=urlImage
+                    ma_nhan_vien=ma_nhan_vien,
+                    ma_phong=ma_phong,
+                    ma_ngql=ma_ngql,
+                    ma_chuc_vu=ma_chuc_vu,
+                    ho_ten_nhan_vien=ho_ten_nhan_vien,
+                    ngay_sinh=ngay_sinh,
+                    so_dien_thoai=so_dien_thoai,
+                    dia_chi=dia_chi,
+                    gioi_tinh=gioi_tinh,
+                    ngay_vao_lam=ngay_vao_lam,
+                    url_image=url_image
                 )
                 employees.append(employee)
         except mysql.connector.Error as err:
@@ -41,29 +42,31 @@ class EmployeeRepository:
 
         return employees
 
-    def findByID(self, employeeID):
+    def findByID(self, ma_nhan_vien):
         connection = self.getConnection()
         cursor = connection.cursor()
         query = """SELECT * FROM nhan_vien WHERE ma_nhan_vien = %s"""
         employee = None
 
         try:
-            cursor.execute(query, (int(employeeID),))
+            cursor.execute(query, (ma_nhan_vien,))
             result = cursor.fetchone()
 
             if result:
-                (employeeID, managerID, roleID, name, dob, phone, address, gender, startDate, urlImage) = result
+                (ma_nhan_vien, ma_phong, ma_ngql, ma_chuc_vu, ho_ten_nhan_vien, 
+                ngay_sinh, so_dien_thoai, dia_chi, gioi_tinh, ngay_vao_lam, url_image) = result
                 employee = Employee(
-                    employeeID=employeeID,
-                    managerID=managerID,
-                    roleID=roleID,
-                    name=name,
-                    dob=dob,
-                    phone=phone,
-                    address=address,
-                    gender=gender,
-                    startDate=startDate,
-                    urlImage = urlImage
+                    ma_nhan_vien=ma_nhan_vien,
+                    ma_phong=ma_phong,
+                    ma_ngql=ma_ngql,
+                    ma_chuc_vu=ma_chuc_vu,
+                    ho_ten_nhan_vien=ho_ten_nhan_vien,
+                    ngay_sinh=ngay_sinh,
+                    so_dien_thoai=so_dien_thoai,
+                    dia_chi=dia_chi,
+                    gioi_tinh=gioi_tinh,
+                    ngay_vao_lam=ngay_vao_lam,
+                    url_image=url_image
                 )
         except mysql.connector.Error as err:
             print(f"Database error: {err}")
@@ -73,48 +76,56 @@ class EmployeeRepository:
 
         return employee
 
-    def save(self, employee): # Gồm xử lí thêm và sửa
+    def save(self, employee):
         connection = self.getConnection()
         cursor = connection.cursor()
 
-        if employee.employeeID is None:
-            query = """INSERT INTO Employee (managerID, roleID, name, dob, phone, address, gender, startDate) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
+        if employee.ma_nhan_vien is None:
+            query = """INSERT INTO nhan_vien (ma_phong, ma_ngql, ma_chuc_vu, ho_ten_nhan_vien, 
+                    ngay_sinh, so_dien_thoai, dia_chi, gioi_tinh, ngay_vao_lam, url_image) 
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 
             data = (
-                employee.managerID,
-                employee.roleID,
-                employee.name,
-                employee.dob,
-                employee.phone,
-                employee.address,
-                employee.gender,
-                employee.startDate
+                employee.ma_phong,
+                employee.ma_ngql,
+                employee.ma_chuc_vu,
+                employee.ho_ten_nhan_vien,
+                employee.ngay_sinh,
+                employee.so_dien_thoai,
+                employee.dia_chi,
+                employee.gioi_tinh,
+                employee.ngay_vao_lam,
+                employee.url_image
             )
 
             try:
                 cursor.execute(query, data)
                 connection.commit()
-                employee.employeeID = cursor.lastrowid #Tạo ID tự động
+                employee.ma_nhan_vien = cursor.lastrowid
             except mysql.connector.Error as err:
                 print(f"Database error: {err}")
             finally:
                 cursor.close()
                 connection.close()
         else:
-            query = """UPDATE Employee
-            SET managerID = %s, roleID = %s, name = %s, dob = %s, phone = %s, address = %s, gender = %s, startDate = %s
-            WHERE employeeID = %s"""
+            query = """UPDATE nhan_vien
+                    SET ma_phong = %s, ma_ngql = %s, ma_chuc_vu = %s, ho_ten_nhan_vien = %s,
+                    ngay_sinh = %s, so_dien_thoai = %s, dia_chi = %s, gioi_tinh = %s, 
+                    ngay_vao_lam = %s, url_image = %s
+                    WHERE ma_nhan_vien = %s"""
 
             data = (
-                employee.managerID,
-                employee.roleID,
-                employee.name,
-                employee.dob,
-                employee.phone,
-                employee.address,
-                employee.gender,
-                employee.startDate,
-                employee.employeeID
+                employee.ma_phong,
+                employee.ma_ngql,
+                employee.ma_chuc_vu,
+                employee.ho_ten_nhan_vien,
+                employee.ngay_sinh,
+                employee.so_dien_thoai,
+                employee.dia_chi,
+                employee.gioi_tinh,
+                employee.ngay_vao_lam,
+                employee.url_image,
+                employee.ma_nhan_vien
             )
 
             try:
@@ -128,14 +139,14 @@ class EmployeeRepository:
 
         return employee
 
-    def delete(self, employeeID):
+    def delete(self, ma_nhan_vien):
         connection = self.getConnection()
         cursor = connection.cursor()
 
-        query = "DELETE FROM Employee WHERE employeeID = %s"
+        query = "DELETE FROM nhan_vien WHERE ma_nhan_vien = %s"
 
         try:
-            cursor.execute(query, (employeeID,))
+            cursor.execute(query, (ma_nhan_vien,))
             connection.commit()
             return cursor.rowcount > 0
         except mysql.connector.Error as err:
@@ -145,26 +156,29 @@ class EmployeeRepository:
             cursor.close()
             connection.close()
 
-    def findByName(self, name):
+    def findByName(self, ho_ten_nhan_vien):
         connection = self.getConnection()
         cursor = connection.cursor()
 
-        query = """SELECT * FROM Employee WHERE name LIKE %s"""
+        query = """SELECT * FROM nhan_vien WHERE ho_ten_nhan_vien LIKE %s"""
         employees = []
 
         try:
-            cursor.execute(query, (f"%{name}%",))
-            for (employeeID, managerID, roleID, name, dob, phone, address, gender, startDate) in cursor:
+            cursor.execute(query, (f"%{ho_ten_nhan_vien}%",))
+            for (ma_nhan_vien, ma_phong, ma_ngql, ma_chuc_vu, ho_ten_nhan_vien, 
+                ngay_sinh, so_dien_thoai, dia_chi, gioi_tinh, ngay_vao_lam, url_image) in cursor:
                 employee = Employee(
-                    employeeID=employeeID,
-                    managerID=managerID,
-                    roleID=roleID,
-                    name=name,
-                    dob=dob,
-                    phone=phone,
-                    address=address,
-                    gender=gender,
-                    startDate=startDate
+                    ma_nhan_vien=ma_nhan_vien,
+                    ma_phong=ma_phong,
+                    ma_ngql=ma_ngql,
+                    ma_chuc_vu=ma_chuc_vu,
+                    ho_ten_nhan_vien=ho_ten_nhan_vien,
+                    ngay_sinh=ngay_sinh,
+                    so_dien_thoai=so_dien_thoai,
+                    dia_chi=dia_chi,
+                    gioi_tinh=gioi_tinh,
+                    ngay_vao_lam=ngay_vao_lam,
+                    url_image=url_image
                 )
                 employees.append(employee)
         except mysql.connector.Error as err:

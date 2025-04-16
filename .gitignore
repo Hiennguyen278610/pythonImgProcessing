@@ -20,3 +20,6 @@ dist/
 
 # Bỏ qua file config.properties trong thư mục Resources
 Resources/config.properties
+
+# Bỏ qua promt github copilot (riêng tư của t, trước khi nộp thì t sẽ xóa dòng này)
+.github/prompts

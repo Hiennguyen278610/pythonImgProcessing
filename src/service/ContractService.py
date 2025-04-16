@@ -8,54 +8,54 @@ class ContractService:
     def getAll(self):
         return self.repository.findAll()
     
-    def getContractByID(self, contractID):
-        return self.repository.findByID(contractID)
+    def getContractByID(self, ma_hop_dong):
+        return self.repository.findByID(ma_hop_dong)
     
-    def getContractsByEmployeeID(self, employeeID):
-        return self.repository.findByEmployeeID(employeeID)
+    def getContractsByEmployeeID(self, ma_nhan_vien):
+        return self.repository.findByEmployeeID(ma_nhan_vien)
     
     def createContract(self, contractData):
         contract = Contract(
-            contractID=None,  # ID sẽ được cơ sở dữ liệu tự sinh
-            employeeID=contractData.get('employeeID'),
-            term=contractData.get('term'),
-            signingDate=contractData.get('signingDate'),
-            salary=contractData.get('salary')
+            ma_hop_dong=None,  # ID sẽ được cơ sở dữ liệu tự sinh
+            ma_nhan_vien=contractData.get('ma_nhan_vien'),
+            thoi_han=contractData.get('thoi_han'),
+            ngay_ky=contractData.get('ngay_ky'),
+            muc_luong=contractData.get('muc_luong')
         )
         self.validContract(contract)
         return self.repository.save(contract)
     
-    def updateContract(self, contractID, contractData):
-        existingContract = self.repository.findByID(contractID)
+    def updateContract(self, ma_hop_dong, contractData):
+        existingContract = self.repository.findByID(ma_hop_dong)
         if not existingContract:
-            raise ValueError(f"This contract with ID {contractID} does not exist.")
+            raise ValueError(f"Hợp đồng có mã {ma_hop_dong} không tồn tại.")
         
-        if 'employeeID' in contractData:
-            existingContract.employeeID = contractData.get('employeeID')
-        if 'term' in contractData:
-            existingContract.term = contractData.get('term')
-        if 'signingDate' in contractData:
-            existingContract.signingDate = contractData.get('signingDate')
-        if 'salary' in contractData:
-            existingContract.salary = contractData.get('salary')
+        if 'ma_nhan_vien' in contractData:
+            existingContract.ma_nhan_vien = contractData.get('ma_nhan_vien')
+        if 'thoi_han' in contractData:
+            existingContract.thoi_han = contractData.get('thoi_han')
+        if 'ngay_ky' in contractData:
+            existingContract.ngay_ky = contractData.get('ngay_ky')
+        if 'muc_luong' in contractData:
+            existingContract.muc_luong = contractData.get('muc_luong')
         
         self.validContract(existingContract)
         return self.repository.save(existingContract)
     
-    def deleteContract(self, contractID):
-        existingContract = self.repository.findByID(contractID)
+    def deleteContract(self, ma_hop_dong):
+        existingContract = self.repository.findByID(ma_hop_dong)
         if not existingContract:
-            raise ValueError(f"This contract with ID {contractID} does not exist.")
-        return self.repository.delete(contractID)
+            raise ValueError(f"Hợp đồng có mã {ma_hop_dong} không tồn tại.")
+        return self.repository.delete(ma_hop_dong)
     
     # Kiểm tra các trường bắt buộc
     def validContract(self, contract):
-        if not contract.employeeID:
-            raise ValueError("Employee ID cannot be empty.")
-        if not contract.term or not contract.term.strip():
-            raise ValueError("Contract term cannot be empty.")
-        if not contract.signingDate:
-            raise ValueError("Signing date cannot be empty.")
-        if not contract.salary or contract.salary <= 0:
-            raise ValueError("Salary must be a positive number.")
+        if not contract.ma_nhan_vien:
+            raise ValueError("Mã nhân viên không được để trống.")
+        if not contract.thoi_han or not contract.thoi_han.strip():
+            raise ValueError("Thời hạn hợp đồng không được để trống.")
+        if not contract.ngay_ky:
+            raise ValueError("Ngày ký không được để trống.")
+        if not contract.muc_luong or contract.muc_luong <= 0:
+            raise ValueError("Mức lương phải là số dương.")
         return True

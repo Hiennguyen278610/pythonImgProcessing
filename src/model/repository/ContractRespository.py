@@ -1,6 +1,7 @@
 import mysql.connector
 from src.model.entity.ContractEntity import Contract
 from src.utils.databaseUtil import connectDatabase
+from datetime import datetime
 
 class ContractRepository:
     def __init__(self, config=None):
@@ -12,18 +13,18 @@ class ContractRepository:
     def findAll(self):
         connection = self.getConnection()
         cursor = connection.cursor()
-        query = """SELECT * FROM Contract"""
+        query = """SELECT * FROM hop_dong"""
         contracts = []
         
         try:
             cursor.execute(query)
-            for (contractID, employeeID, term, signingDate, salary) in cursor:
+            for (ma_hop_dong, ma_nhan_vien, thoi_han, ngay_ky, muc_luong) in cursor:
                 contract = Contract(
-                    contractID=contractID,
-                    employeeID=employeeID,
-                    term=term,
-                    signingDate=signingDate,
-                    salary=salary
+                    ma_hop_dong=ma_hop_dong,
+                    ma_nhan_vien=ma_nhan_vien,
+                    thoi_han=thoi_han,
+                    ngay_ky=ngay_ky,
+                    muc_luong=muc_luong
                 )
                 contracts.append(contract)
         except mysql.connector.Error as err:
@@ -35,48 +36,53 @@ class ContractRepository:
             
         return contracts
 
-    def findByID(self, contractID):
+    def findByID(self, ma_hop_dong):
         connection = self.getConnection()
         cursor = connection.cursor()  
-        query = """SELECT * FROM Contract WHERE contractID = %s"""
+        query = """SELECT * FROM hop_dong WHERE ma_hop_dong = %s"""
         contract = None
         
         try:
-            cursor.execute(query, (contractID,))
+            cursor.execute(query, (ma_hop_dong,))
             result = cursor.fetchone()
             
             if result:
-                (contractID, employeeID, term, signingDate, salary) = result
+                (ma_hop_dong, ma_nhan_vien, thoi_han, ngay_ky, muc_luong) = result
                 contract = Contract(
-                    contractID=contractID,
-                    employeeID=employeeID,
-                    term=term,
-                    signingDate=signingDate,
-                    salary=salary
+                    ma_hop_dong=ma_hop_dong,
+                    ma_nhan_vien=ma_nhan_vien,
+                    thoi_han=thoi_han,
+                    ngay_ky=ngay_ky,
+                    muc_luong=muc_luong
                 )
+        except mysql.connector.Error as err:
+            print(f"Database error: {err}")
         finally:
             cursor.close()
             connection.close()
             
         return contract
         
-    def findByEmployeeID(self, employeeID):
+    def findByEmployeeID(self, ma_nhan_vien):
         connection = self.getConnection()
         cursor = connection.cursor()  
-        query = """SELECT * FROM Contract WHERE employeeID = %s"""
+        query = """SELECT * FROM hop_dong WHERE ma_nhan_vien = %s"""
         contracts = []
         
         try:
-            cursor.execute(query, (employeeID,))
-            for (contractID, employeeID, term, signingDate, salary) in cursor:
+            cursor.execute(query, (ma_nhan_vien,))
+            for (ma_hop_dong, ma_nhan_vien, thoi_han, ngay_ky, muc_luong) in cursor:
                 contract = Contract(
-                    contractID=contractID,
-                    employeeID=employeeID,
-                    term=term,
-                    signingDate=signingDate,
-                    salary=salary
+                    ma_hop_dong=ma_hop_dong,
+                    ma_nhan_vien=ma_nhan_vien,
+                    thoi_han=thoi_han,
+                    ngay_ky=ngay_ky,
+                    muc_luong=muc_luong
                 )
                 contracts.append(contract)
+        except mysql.connector.Error as err:
+            print(f"Database error: {err}")
+            return []
         finally:
             cursor.close()
             connection.close()
@@ -87,55 +93,62 @@ class ContractRepository:
         connection = self.getConnection()
         cursor = connection.cursor()
         
-        if contract.contractID is None:
-            query = """INSERT INTO Contract (employeeID, term, signingDate, salary) VALUES (%s, %s, %s, %s)"""
+        if contract.ma_hop_dong is None:
+            query = """INSERT INTO hop_dong (ma_nhan_vien, thoi_han, ngay_ky, muc_luong) VALUES (%s, %s, %s, %s)"""
             
             data = (
-                contract.employeeID, 
-                contract.term, 
-                contract.signingDate, 
-                contract.salary
+                contract.ma_nhan_vien, 
+                contract.thoi_han, 
+                contract.ngay_ky, 
+                contract.muc_luong
             )
             
             try:
                 cursor.execute(query, data)
                 connection.commit()
-                contract.contractID = cursor.lastrowid
+                contract.ma_hop_dong = cursor.lastrowid
+            except mysql.connector.Error as err:
+                print(f"Database error: {err}")
             finally:
                 cursor.close()
                 connection.close()
         else:
-            query = """UPDATE Contract
-                    SET employeeID = %s, term = %s, signingDate = %s, salary = %s
-                    WHERE contractID = %s"""
+            query = """UPDATE hop_dong
+                    SET ma_nhan_vien = %s, thoi_han = %s, ngay_ky = %s, muc_luong = %s
+                    WHERE ma_hop_dong = %s"""
             
             data = (
-                contract.employeeID,
-                contract.term,
-                contract.signingDate,
-                contract.salary,
-                contract.contractID
+                contract.ma_nhan_vien,
+                contract.thoi_han,
+                contract.ngay_ky,
+                contract.muc_luong,
+                contract.ma_hop_dong
             )
             
             try:
                 cursor.execute(query, data)
                 connection.commit()
+            except mysql.connector.Error as err:
+                print(f"Database error: {err}")
             finally:
                 cursor.close()
                 connection.close()
                 
         return contract
 
-    def delete(self, contractID):
+    def delete(self, ma_hop_dong):
         connection = self.getConnection()
         cursor = connection.cursor()
         
-        query = "DELETE FROM Contract WHERE contractID = %s"
+        query = "DELETE FROM hop_dong WHERE ma_hop_dong = %s"
         
         try:
-            cursor.execute(query, (contractID,))
+            cursor.execute(query, (ma_hop_dong,))
             connection.commit()
             return cursor.rowcount > 0
+        except mysql.connector.Error as err:
+            print(f"Database error: {err}")
+            return False
         finally:
             cursor.close()
             connection.close()

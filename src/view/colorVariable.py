@@ -6,5 +6,3 @@ bgClr = "#F7F7F7"
 textClr = "#FFFFFF"
 borderClr = "#000000"
 hoverClr = "#B0A0F4"
-
-# Orther theme 

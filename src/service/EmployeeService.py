@@ -8,70 +8,76 @@ class EmployeeService:
     def getAll(self):
         return self.repository.findAll()
     
-    def getEmployeeByID(self, employeeID):
-        return self.repository.findByID(employeeID)
+    def getEmployeeByID(self, ma_nhan_vien):
+        return self.repository.findByID(ma_nhan_vien)
     
-    def searchEmployeesByName(self, name):
-        return self.repository.findByName(name)
+    def searchEmployeesByName(self, ho_ten_nhan_vien):
+        return self.repository.findByName(ho_ten_nhan_vien)
     
     def createEmployee(self, employeeData):
         employee = Employee(
-            employeeID=None,  # ID sẽ được cơ sở dữ liệu tự sinh
-            managerID=employeeData.get('managerID'),
-            roleID=employeeData.get('roleID'),
-            name=employeeData.get('name'),
-            dob=employeeData.get('dob'),
-            phone=employeeData.get('phone'),
-            address=employeeData.get('address'),
-            gender=employeeData.get('gender'),
-            startDate=employeeData.get('startDate')
+            ma_nhan_vien=None,  # ID sẽ được cơ sở dữ liệu tự sinh
+            ma_phong=employeeData.get('ma_phong'),
+            ma_ngql=employeeData.get('ma_ngql'),
+            ma_chuc_vu=employeeData.get('ma_chuc_vu'),
+            ho_ten_nhan_vien=employeeData.get('ho_ten_nhan_vien'),
+            ngay_sinh=employeeData.get('ngay_sinh'),
+            so_dien_thoai=employeeData.get('so_dien_thoai'),
+            dia_chi=employeeData.get('dia_chi'),
+            gioi_tinh=employeeData.get('gioi_tinh'),
+            ngay_vao_lam=employeeData.get('ngay_vao_lam'),
+            url_image=employeeData.get('url_image')
         )
 
         self.validEmployee(employee)
         return self.repository.save(employee)
     
-    def updateEmployee(self, employeeID, employeeData):
+    def updateEmployee(self, ma_nhan_vien, employeeData):
         # Kiểm tra xem nhân viên có tồn tại không
-        existEmployee = self.repository.findByID(employeeID)
+        existEmployee = self.repository.findByID(ma_nhan_vien)
         if not existEmployee:
-            raise ValueError(f"This {employeeID} is employee null.")
+            raise ValueError(f"Nhân viên có mã {ma_nhan_vien} không tồn tại.")
         
         # Cập nhật thông tin nhân viên
-        if 'managerID' in employeeData:
-            existEmployee.managerID = employeeData.get('managerID')
-        if 'roleID' in employeeData:
-            existEmployee.roleID = employeeData.get('roleID')
-        if 'name' in employeeData:
-            existEmployee.name = employeeData.get('name')
-        if 'dob' in employeeData:
-            existEmployee.dob = employeeData.get('dob')
-        if 'phone' in employeeData:
-            existEmployee.phone = employeeData.get('phone')
-        if 'address' in employeeData:
-            existEmployee.address = employeeData.get('address')
-        if 'gender' in employeeData:
-            existEmployee.gender = employeeData.get('gender')
-        if 'startDate' in employeeData:
-            existEmployee.startDate = employeeData.get('startDate')
+        if 'ma_phong' in employeeData:
+            existEmployee.ma_phong = employeeData.get('ma_phong')
+        if 'ma_ngql' in employeeData:
+            existEmployee.ma_ngql = employeeData.get('ma_ngql')
+        if 'ma_chuc_vu' in employeeData:
+            existEmployee.ma_chuc_vu = employeeData.get('ma_chuc_vu')
+        if 'ho_ten_nhan_vien' in employeeData:
+            existEmployee.ho_ten_nhan_vien = employeeData.get('ho_ten_nhan_vien')
+        if 'ngay_sinh' in employeeData:
+            existEmployee.ngay_sinh = employeeData.get('ngay_sinh')
+        if 'so_dien_thoai' in employeeData:
+            existEmployee.so_dien_thoai = employeeData.get('so_dien_thoai')
+        if 'dia_chi' in employeeData:
+            existEmployee.dia_chi = employeeData.get('dia_chi')
+        if 'gioi_tinh' in employeeData:
+            existEmployee.gioi_tinh = employeeData.get('gioi_tinh')
+        if 'ngay_vao_lam' in employeeData:
+            existEmployee.ngay_vao_lam = employeeData.get('ngay_vao_lam')
+        if 'url_image' in employeeData:
+            existEmployee.url_image = employeeData.get('url_image')
         
         self.validEmployee(existEmployee)
         return self.repository.save(existEmployee)
     
-    def deleteEmployee(self, employeeID):
-        existEmployee = self.repository.findByID(employeeID)
+    def deleteEmployee(self, ma_nhan_vien):
+        existEmployee = self.repository.findByID(ma_nhan_vien)
         if not existEmployee:
-            raise ValueError(f"This {employeeID} is employee null.")
-        return self.repository.delete(employeeID)
+            raise ValueError(f"Nhân viên có mã {ma_nhan_vien} không tồn tại.")
+        return self.repository.delete(ma_nhan_vien)
     
     # Kiểm tra các trường bắt buộc
     def validEmployee(self, employee):
-        if not employee.name or not employee.name.strip():
-            raise ValueError("Employee name not null.")
+        if not employee.ho_ten_nhan_vien or not employee.ho_ten_nhan_vien.strip():
+            raise ValueError("Tên nhân viên không được để trống.")
         
-        if not employee.phone or not employee.phone.strip():
-            raise ValueError("Employee phone not null.")
+        if not employee.so_dien_thoai or not employee.so_dien_thoai.strip():
+            raise ValueError("Số điện thoại không được để trống.")
         
-        if not employee.phone.isdigit() and len(employee.phone == 10) and employee.phone.startswith('0'):
-            raise ValueError("Employee phone just only digit, lenght phone just equal 10 and start with.")
+        if not employee.so_dien_thoai.isdigit() or len(employee.so_dien_thoai) != 10 or not employee.so_dien_thoai.startswith('0'):
+            raise ValueError("Số điện thoại phải là chữ số, có độ dài là 10 và bắt đầu bằng số 0.")
         
         return True
