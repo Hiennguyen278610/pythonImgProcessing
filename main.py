@@ -2,7 +2,7 @@ from customtkinter import *
 from src.utils.viewExtention import *
 from src.view.colorVariable import *
 from src.view.component.TaskBar import TaskBar
-from src.view.EmployeePanel import EmployeePanel
+from view.nhan_vien_panel import EmployeePanel
 from src.view.ContractPanel import ContractPanel
 
 def mainFrame():
