@@ -18,7 +18,7 @@ def mainFrame():
     body.grid_columnconfigure(0, weight=1)
     body.grid_columnconfigure(1, weight=9)
     
-    left = CTkFrame(body)
+    left = CTkFrame(body, fg_color=bgClr)
     left.grid(row=0, column=0, sticky="nsew")
     left.grid_rowconfigure(0, weight=1)
     left.grid_rowconfigure(1, weight=9)
@@ -34,14 +34,14 @@ def mainFrame():
         font=("Arial", 16, "bold"),
         text_color=textClr
     )
-    title_label.pack(pady=10)
+    title_label.pack(padx = 10, pady=10)
     
     # Tạo TaskBar có thể cuộn được
     leftBottom = TaskBar(left, fg_color=secondaryCrl)
     leftBottom.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
     
     # Tạo frame cho nội dung bên phải
-    right = CTkFrame(body)
+    right = CTkFrame(body, fg_color=bgClr)
     right.grid(row=0, column=1, sticky="nsew")
     right.grid_rowconfigure(0, weight=1)
     right.grid_columnconfigure(0, weight=1)

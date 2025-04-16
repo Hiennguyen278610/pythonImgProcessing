@@ -18,6 +18,7 @@ class DataTable(CTkScrollableFrame):
         headerFrame = CTkFrame(self)
         headerFrame.pack(fill="x", padx=0, pady=(0, 5))
         for i, col in enumerate(self.columns):
+            headerFrame.grid_columnconfigure(i, weight=col.get("width", 1))
             self.geneColumn(headerFrame, col, i)
     
     def updateDataTable(self, data):
@@ -33,10 +34,8 @@ class DataTable(CTkScrollableFrame):
         for i, item in enumerate(self.data):
             rowFrame = CTkFrame(self.rowValue)
             rowFrame.pack(fill="x", padx=0, pady=(0, 2))
-            # Cấu hình grid_columnconfigure cho từng cột
             for j, col in enumerate(self.columns):
-                weight = col.get("width", 1)
-                rowFrame.grid_columnconfigure(j, weight=weight)
+                rowFrame.grid_columnconfigure(j, weight=col.get("width", 1))
                 field = col.get("field", "")
                 value = item.__dict__.get(field, "") if hasattr(item, field) else ""
                 self.genecell(rowFrame, value, j)
