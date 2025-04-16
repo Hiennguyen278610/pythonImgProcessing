@@ -58,6 +58,11 @@ class AttendanceService:
                 id = self.known_face_id[first_match_index]
 
                 now = datetime.now()
-                self.attendance_repo.mark_attendance(id, now)
 
         return id
+
+
+    def get_employee_attendance(self, frame):
+        id = self.recognize_and_mark_attendance(frame)
+        employee_attendance = self.employee_repo.findByID(id)
+        return employee_attendance

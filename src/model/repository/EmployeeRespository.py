@@ -43,7 +43,7 @@ class EmployeeRepository:
     def findByID(self, employeeID):
         connection = self.getConnection()
         cursor = connection.cursor()
-        query = """SELECT * FROM Employee WHERE employeeID = %s"""
+        query = """SELECT * FROM nhan_vien WHERE employeeID = %s"""
         employee = None
 
         try:
@@ -51,7 +51,7 @@ class EmployeeRepository:
             result = cursor.fetchone()
 
             if result:
-                (employeeID, managerID, roleID, name, dob, phone, address, gender, startDate) = result
+                (employeeID, managerID, roleID, name, dob, phone, address, gender, startDate, urlImg) = result
                 employee = Employee(
                     employeeID=employeeID,
                     managerID=managerID,
@@ -61,7 +61,8 @@ class EmployeeRepository:
                     phone=phone,
                     address=address,
                     gender=gender,
-                    startDate=startDate
+                    startDate=startDate,
+                    urlImg = urlImg
                 )
         except mysql.connector.Error as err:
             print(f"Database error: {err}")
