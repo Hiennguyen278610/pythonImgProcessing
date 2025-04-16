@@ -1,13 +1,12 @@
 from datetime import datetime
 
 class Employee:
-    def __init__(self, ma_nhan_vien: int, ma_phong: int, ma_ngql: int = None, 
+    def __init__(self, ma_nhan_vien: int, ma_ngql: int = None,
                  ma_chuc_vu: int = None, ho_ten_nhan_vien: str = None, 
                  ngay_sinh: datetime = None, so_dien_thoai: str = None, 
                  dia_chi: str = None, gioi_tinh: str = None, 
                  ngay_vao_lam: datetime = None, url_image: str = None):
         self.ma_nhan_vien = ma_nhan_vien
-        self.ma_phong = ma_phong
         self.ma_ngql = ma_ngql
         self.ma_chuc_vu = ma_chuc_vu
         self.ho_ten_nhan_vien = ho_ten_nhan_vien

@@ -4,12 +4,12 @@ import os
 import pickle
 import numpy
 from datetime import datetime
-from src.model.repository.AttendanceRespository import AttendanceRespository
+from src.model.repository.AttendanceRespository import AttendanceRepository
 from src.model.repository.EmployeeRespository import EmployeeRepository
 
 class AttendanceService:
     def __init__(self):
-        self.attendance_repo = AttendanceRespository()
+        self.attendance_repo = AttendanceRepository()
         self.employee_repo = EmployeeRepository()
         self.known_face_encodings = []
         self.known_face_id = []
@@ -17,12 +17,12 @@ class AttendanceService:
     def load_known_faces(self):
         employees = self.employee_repo.findAll()
         for employee in employees:
-            path = os.path.join("src", "..", "Resources", employee.urlImage)
+            path = os.path.join("src", "..", "Resources", employee.url_image)
             image = face_recognition.load_image_file(path)
             encoding = face_recognition.face_encodings(image)
             if encoding:
                 self.known_face_encodings.append(encoding[0])
-                self.known_face_id.append(employee.employeeID)
+                self.known_face_id.append(employee.ma_nhan_vien)
         encodeWithId = [self.known_face_encodings, self.known_face_id]
         with open("src/../Resources/EncodeFile.p", 'wb') as file:
             pickle.dump(encodeWithId, file)
