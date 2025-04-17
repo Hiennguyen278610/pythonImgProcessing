@@ -12,13 +12,16 @@ class EmployeeRepository:
     def findAll(self):
         connection = self.getConnection()
         cursor = connection.cursor()
-        query = """SELECT * FROM nhan_vien"""
+        query = """SELECT ma_nhan_vien, ma_ngql, ma_chuc_vu, ho_ten_nhan_vien, ngay_sinh, so_dien_thoai, dia_chi, gioi_tinh, ngay_vao_lam, url_image FROM nhan_vien"""
+
         employees = []
 
         try:
             cursor.execute(query)
-            for (ma_nhan_vien, ma_ngql, ma_chuc_vu, ho_ten_nhan_vien,
-                ngay_sinh, so_dien_thoai, dia_chi, gioi_tinh, ngay_vao_lam, url_image) in cursor:
+            results = cursor.fetchall()  # Thêm dòng này để lấy tất cả kết quả trước khi xử lý
+            for row in results:
+                (ma_nhan_vien, ma_ngql, ma_chuc_vu, ho_ten_nhan_vien,
+                ngay_sinh, so_dien_thoai, dia_chi, gioi_tinh, ngay_vao_lam, url_image) = row
                 employee = Employee(
                     ma_nhan_vien=ma_nhan_vien,
                     ma_ngql=ma_ngql,
@@ -79,12 +82,11 @@ class EmployeeRepository:
         cursor = connection.cursor()
 
         if employee.ma_nhan_vien is None:
-            query = """INSERT INTO nhan_vien (ma_phong, ma_ngql, ma_chuc_vu, ho_ten_nhan_vien, 
+            query = """INSERT INTO nhan_vien (ma_ngql, ma_chuc_vu, ho_ten_nhan_vien, 
                     ngay_sinh, so_dien_thoai, dia_chi, gioi_tinh, ngay_vao_lam, url_image) 
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
 
             data = (
-                employee.ma_phong,
                 employee.ma_ngql,
                 employee.ma_chuc_vu,
                 employee.ho_ten_nhan_vien,
@@ -107,13 +109,12 @@ class EmployeeRepository:
                 connection.close()
         else:
             query = """UPDATE nhan_vien
-                    SET ma_phong = %s, ma_ngql = %s, ma_chuc_vu = %s, ho_ten_nhan_vien = %s,
+                    SET ma_ngql = %s, ma_chuc_vu = %s, ho_ten_nhan_vien = %s,
                     ngay_sinh = %s, so_dien_thoai = %s, dia_chi = %s, gioi_tinh = %s, 
                     ngay_vao_lam = %s, url_image = %s
                     WHERE ma_nhan_vien = %s"""
 
             data = (
-                employee.ma_phong,
                 employee.ma_ngql,
                 employee.ma_chuc_vu,
                 employee.ho_ten_nhan_vien,
@@ -163,11 +164,10 @@ class EmployeeRepository:
 
         try:
             cursor.execute(query, (f"%{ho_ten_nhan_vien}%",))
-            for (ma_nhan_vien, ma_phong, ma_ngql, ma_chuc_vu, ho_ten_nhan_vien, 
+            for (ma_nhan_vien, ma_ngql, ma_chuc_vu, ho_ten_nhan_vien, 
                 ngay_sinh, so_dien_thoai, dia_chi, gioi_tinh, ngay_vao_lam, url_image) in cursor:
                 employee = Employee(
                     ma_nhan_vien=ma_nhan_vien,
-                    ma_phong=ma_phong,
                     ma_ngql=ma_ngql,
                     ma_chuc_vu=ma_chuc_vu,
                     ho_ten_nhan_vien=ho_ten_nhan_vien,
