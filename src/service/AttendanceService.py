@@ -27,6 +27,15 @@ class AttendanceService:
         with open("src/../Resources/EncodeFile.p", 'wb') as file:
             pickle.dump(encodeWithId, file)
 
+    def load_file_encode(self):
+        try:
+            with open("src/../Resources/EncodeFile.p", 'rb') as file:
+                encodeWithId = pickle.load(file)
+                self.known_face_encodings, self.known_face_id = encodeWithId
+                print(len(self.known_face_encodings))
+        except:
+            self.known_face_encodings, self.known_face_id = [], []
+
     def add_new_face(self, new_employee):
         try:
             with open("../../Resources/EncodeFile.p", 'rb') as file:
@@ -61,7 +70,7 @@ class AttendanceService:
             face_distances = face_recognition.face_distance(self.known_face_encodings, encode_face)
             if len(face_distances) > 0:
                 match_index = numpy.argmin(face_distances)
-                if matches[match_index] and face_distances[match_index] < 0.4:
+                if matches[match_index] and face_distances[match_index] < 0.45:
                     id = match_index + 1
 
         return id
@@ -72,3 +81,25 @@ class AttendanceService:
         if id == -1: return None
         employee_attendance = self.employee_repo.findByID(id)
         return employee_attendance
+
+    def save_attendance_img(self, frame, ma_nhan_vien):
+        today = datetime.now().strftime("%Y-%m-%d")
+        time_now = datetime.now().strftime("%H-%M-%S")
+        folder_path = os.path.join("scr/../Resources", "attendanceImg", today)
+        os.makedirs(folder_path, exist_ok=True)
+        filename = f"{ma_nhan_vien}_{time_now}.jpg"
+        file_path = os.path.join(folder_path, filename)
+        cv2.imwrite(file_path, frame)
+        return file_path
+
+    def checkIn(self, frame, ma_nhan_vien):
+        record = self.attendance_repo.getTodayRecord(ma_nhan_vien)
+        if record is None:
+            path = self.save_attendance_img(frame, ma_nhan_vien)
+            self.attendance_repo.insertCheckin(ma_nhan_vien, path)
+            print("checkin")
+        elif record[3] is None:
+            path = self.save_attendance_img(frame, ma_nhan_vien)
+            self.attendance_repo.updateCheckout(ma_nhan_vien, path)
+            print("Checkout")
+        else: print(record[3])

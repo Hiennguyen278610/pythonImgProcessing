@@ -159,3 +159,24 @@ class AttendanceRepository:
         finally:
             cursor.close()
             connection.close()
+
+    def getTodayRecord(self, ma_nhan_vien):
+        connection = self.getConnection()
+        cursor = connection.cursor()
+        query = """SELECT * FROM cham_cong WHERE ma_nhan_vien = %s AND ngay_cham_cong = CURDATE()"""
+        cursor.execute(query, (ma_nhan_vien,))
+        return cursor.fetchone()
+
+    def insertCheckin(self, ma_nhan_vien, urlImg):
+        connection = self.getConnection()
+        cursor = connection.cursor()
+        query = """INSERT INTO cham_cong (ma_nhan_vien, ngay_cham_cong, gio_vao, img_checkin) VALUES (%s, CURDATE(), NOW(), %s)"""
+        cursor.execute(query, (ma_nhan_vien, urlImg,))
+        connection.commit()
+
+    def updateCheckout(self, ma_nhan_vien, urlImg):
+        connection = self.getConnection()
+        cursor = connection.cursor()
+        query = """UPDATE cham_cong SET gio_ra = NOW(), img_checkout = %s WHERE ma_nhan_vien = %s AND ngay_cham_cong = CURDATE()"""
+        cursor.execute(query, (urlImg, ma_nhan_vien))
+        connection.commit()

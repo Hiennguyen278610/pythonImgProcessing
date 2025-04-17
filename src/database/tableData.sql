@@ -19,8 +19,9 @@ CREATE TABLE cham_cong (
     ma_nhan_vien INT not null,
     ngay_cham_cong DATE not null,
     gio_vao TIME not null,
-    gio_ra TIME not null,
-    img VARCHAR(255) not null,
+    gio_ra TIME,
+    img_checkin VARCHAR(255) not null,
+    img_checkout VARCHAR(255),
     PRIMARY KEY (ma_nhan_vien, ngay_cham_cong)
 );
 
@@ -73,12 +74,12 @@ INSERT INTO hop_dong (ma_nhan_vien, thoi_han, ngay_ky, muc_luong) VALUES
 (4, '5 năm', '2015-03-25', 14000000.00),
 (5, '1 năm', '2024-01-10', 12500000.00);
 
-INSERT INTO cham_cong (ma_nhan_vien, ngay_cham_cong, gio_vao, gio_ra, img) VALUES
-(1, '2025-04-13', '08:00:00', '17:00:00', 'images/cc1.jpg'),
-(2, '2025-04-13', '08:15:00', '17:10:00', 'images/cc2.jpg'),
-(3, '2025-04-13', '08:05:00', '17:05:00', 'images/cc3.jpg'),
-(4, '2025-04-13', '07:55:00', '16:50:00', 'images/cc4.jpg'),
-(5, '2025-04-13', '08:10:00', '17:20:00', 'images/cc5.jpg');
+# INSERT INTO cham_cong (ma_nhan_vien, ngay_cham_cong, gio_vao, gio_ra, img_checkin, img_checkout) VALUES
+# (1, '2025-04-13', '08:00:00', '17:00:00', 'images/cc1.jpg'),
+# (2, '2025-04-13', '08:15:00', '17:10:00', 'images/cc2.jpg'),
+# (3, '2025-04-13', '08:05:00', '17:05:00', 'images/cc3.jpg'),
+# (4, '2025-04-13', '07:55:00', '16:50:00', 'images/cc4.jpg'),
+# (5, '2025-04-13', '08:10:00', '17:20:00', 'images/cc5.jpg');
 
 alter table chuc_vu
     add constraint foreign key (ma_phong) references phong(ma_phong);
