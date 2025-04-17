@@ -6,11 +6,11 @@ class EmployeePanel(BasePanel):
     def __init__(self, master, **kwargs):
         # Định nghĩa các cột cho Employee
         columns = [
-            {"field": "employeeID", "header": "ID", "width": 1},
-            {"field": "name", "header": "Họ tên", "width": 4},
-            {"field": "phone", "header": "SĐT", "width": 2},
-            {"field": "gender", "header": "Giới tính", "width": 1},
-            {"field": "address", "header": "Địa chỉ", "width": 4}
+            {"field": "ma_nhan_vien", "header": "ID", "width": 1},
+            {"field": "ho_ten_nhan_vien", "header": "Họ tên", "width": 4},
+            {"field": "so_dien_thoai", "header": "SĐT", "width": 2},
+            {"field": "gioi_tinh", "header": "Giới tính", "width": 1},
+            {"field": "dia_chi", "header": "Địa chỉ", "width": 4}
         ]
 
         # Khởi tạo controller

@@ -5,11 +5,11 @@ class ContractPanel(BasePanel):
     def __init__(self, master, **kwargs):
         # Định nghĩa các cột cho Contract
         columns = [
-            {"field": "contractID", "header": "ID", "width": 1},
-            {"field": "employeeID", "header": "Mã NV", "width": 1},
-            {"field": "term", "header": "Thời hạn", "width": 2},
-            {"field": "signingDate", "header": "Ngày ký", "width": 2},
-            {"field": "salary", "header": "Lương", "width": 3}
+            {"field": "ma_hop_dong", "header": "ID", "width": 1},
+            {"field": "ma_nhan_vien", "header": "Mã NV", "width": 1},
+            {"field": "thoi_han", "header": "Thời hạn", "width": 2},
+            {"field": "ngay_ky", "header": "Ngày ký", "width": 2},
+            {"field": "muc_luong", "header": "Lương", "width": 3}
         ]
         
         # Khởi tạo controller
