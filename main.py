@@ -58,7 +58,7 @@ def mainFrame():
         # Xóa panel hiện tại nếu có
         if current_panel:
             current_panel.grid_forget()
-        
+
         # Tạo panel mới dựa trên entity được chọn
         if key == "employee":
             current_panel = EmployeePanel(right)
@@ -67,7 +67,7 @@ def mainFrame():
         elif key == "position":
             current_panel = PositionPanel(right, PositionController())
 
-        
+
         # Hiển thị panel mới
         if current_panel:
             current_panel.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
