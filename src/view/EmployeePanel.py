@@ -5,7 +5,7 @@ class EmployeePanel(BasePanel):
     def __init__(self, master, **kwargs):
         # Định nghĩa các cột cho Employee
         columns = [
-            {"field": "employeeID", "header": "ID", "width": 1},
+            {"field": "ma_nhan_vien", "header": "ID", "width": 1},
             {"field": "name", "header": "Họ tên", "width": 4},
             {"field": "phone", "header": "SĐT", "width": 2},
             {"field": "gender", "header": "Giới tính", "width": 1},
@@ -19,7 +19,7 @@ class EmployeePanel(BasePanel):
     
     def getIDField(self):
         """Trả về tên trường ID của đối tượng"""
-        return "employeeID"
+        return "ma_nhan_vien"
     
     def onAdd(self):
         """Mở dialog thêm mới nhân viên"""
