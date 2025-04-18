@@ -1,7 +1,7 @@
 import mysql.connector
-from src.model.entity.EmployeeEntity import Employee
 from src.model.entity.PositionEntity import Position
 from src.utils.databaseUtil import connectDatabase
+
 
 class PositionRespository:
     def __init__(self, config=None):
@@ -34,7 +34,7 @@ class PositionRespository:
             connection.close()
 
         return position
-    
+
     def findAll(self):
         connection = self.getConnection()
         cursor = connection.cursor()
@@ -83,24 +83,53 @@ class PositionRespository:
 
         return positions
 
+    def findByKeyword(self, keyword):
+        """Search positions by keyword in name"""
+        connection = self.getConnection()
+        cursor = connection.cursor()
+        query = """SELECT * FROM chuc_vu WHERE ten_chuc_vu LIKE %s"""
+        positions = []
+
+        try:
+            cursor.execute(query, (f'%{keyword}%',))
+            for (ma_chuc_vu, ma_phong, ten_chuc_vu) in cursor:
+                position = Position(
+                    ma_chuc_vu=ma_chuc_vu,
+                    ma_phong=ma_phong,
+                    ten_chuc_vu=ten_chuc_vu
+                )
+                positions.append(position)
+        except mysql.connector.Error as err:
+            print(f"Database error: {err}")
+            return []
+        finally:
+            cursor.close()
+            connection.close()
+
+        return positions
+
     def save(self, position):
         connection = self.getConnection()
         cursor = connection.cursor()
 
-        query = """INSERT INTO chuc_vu (ma_chuc_vu, ma_phong, ten_chuc_vu) VALUES (%s, %s, %s)
-                  ON DUPLICATE KEY UPDATE ma_phong = %s, ten_chuc_vu = %s"""
-        
-        data = (
-            position.ma_chuc_vu,
-            position.ma_phong,
-            position.ten_chuc_vu,
-            position.ma_phong,
-            position.ten_chuc_vu
-        )
-        
+        if position.ma_chuc_vu:
+            # Update existing position
+            query = """UPDATE chuc_vu SET ma_phong = %s, ten_chuc_vu = %s 
+                       WHERE ma_chuc_vu = %s"""
+            data = (position.ma_phong, position.ten_chuc_vu, position.ma_chuc_vu)
+        else:
+            # Insert new position
+            query = """INSERT INTO chuc_vu (ma_phong, ten_chuc_vu) 
+                       VALUES (%s, %s)"""
+            data = (position.ma_phong, position.ten_chuc_vu)
+
         try:
             cursor.execute(query, data)
             connection.commit()
+
+            if not position.ma_chuc_vu and cursor.lastrowid:
+                position.ma_chuc_vu = cursor.lastrowid
+
             return position
         except mysql.connector.Error as err:
             print(f"Database error: {err}")
@@ -112,9 +141,9 @@ class PositionRespository:
     def delete(self, ma_chuc_vu):
         connection = self.getConnection()
         cursor = connection.cursor()
-        
+
         query = "DELETE FROM chuc_vu WHERE ma_chuc_vu = %s"
-        
+
         try:
             cursor.execute(query, (ma_chuc_vu,))
             connection.commit()

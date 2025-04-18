@@ -4,6 +4,8 @@ from src.view.colorVariable import *
 from src.view.component.TaskBar import TaskBar
 from src.view.EmployeePanel import EmployeePanel
 from src.view.ContractPanel import ContractPanel
+from src.view.PositionPanel import PositionPanel
+from src.controller.PositionController import PositionController
 
 def mainFrame():
     mainPanel = CTk()
@@ -62,6 +64,9 @@ def mainFrame():
             current_panel = EmployeePanel(right)
         elif key == "contract":
             current_panel = ContractPanel(right)
+        elif key == "position":
+            current_panel = PositionPanel(right, PositionController())
+
         
         # Hiển thị panel mới
         if current_panel:
@@ -70,7 +75,8 @@ def mainFrame():
     # Thêm các đối tượng vào taskbar
     leftBottom.add_entity("Nhân viên", "employee", EmployeePanel)
     leftBottom.add_entity("Hợp đồng", "contract", ContractPanel)
-    
+    leftBottom.add_entity("Chức vụ", "position", PositionPanel)
+
     # Gán callback cho taskbar
     leftBottom.entity_callback = on_entity_selected
     
