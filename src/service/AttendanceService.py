@@ -35,6 +35,7 @@ class AttendanceService:
                 print(len(self.known_face_encodings))
         except:
             self.known_face_encodings, self.known_face_id = [], []
+            print(len(self.known_face_encodings))
 
     def add_new_face(self, new_employee):
         try:
