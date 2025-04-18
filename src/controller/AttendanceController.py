@@ -15,4 +15,7 @@ class AttendanceController:
         return self.service.locationFace(frame)
 
     def loadData(self):
-        self.service.load_known_faces()
+        self.service.load_file_encode()
+
+    def checkIn(self, frame, ma_nhan_vien):
+        self.service.checkIn(frame, ma_nhan_vien)
