@@ -1,6 +1,8 @@
 from tkinter import messagebox
-from customtkinter import CTkToplevel, CTkLabel, CTkEntry, CTkButton, CTkFrame
+from customtkinter import CTkToplevel, CTkLabel, CTkEntry, CTkButton, CTkFrame, CTkComboBox
 from src.model.entity.PositionEntity import Position
+from src.controller.PositionController import PositionController
+
 
 class BasePositionDialog(CTkToplevel):
     def __init__(self, parent, title, **kwargs):
@@ -21,6 +23,13 @@ class BasePositionDialog(CTkToplevel):
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
+        # At the beginning of BasePositionDialog.__init__:
+        self.controller = PositionController()
+        self.departments = self.controller.getAllDepartments()
+        print(f"Loaded {len(self.departments)} departments")
+        for dept in self.departments:
+            print(f"Department: {dept.ma_phong} - {dept.ten_phong}")
+
         main_frame = CTkFrame(self)
         main_frame.grid(row=0, column=0, padx=20, pady=20, sticky="nsew")
         main_frame.grid_columnconfigure(0, weight=1)
@@ -35,9 +44,28 @@ class BasePositionDialog(CTkToplevel):
         self.name_entry = CTkEntry(main_frame, placeholder_text="Nhập tên chức vụ")
         self.name_entry.grid(row=1, column=1, padx=10, pady=10, sticky="ew")
 
-        CTkLabel(main_frame, text="Mã phòng:").grid(row=2, column=0, padx=10, pady=10, sticky="w")
-        self.dept_entry = CTkEntry(main_frame, placeholder_text="Nhập mã phòng")
-        self.dept_entry.grid(row=2, column=1, padx=10, pady=10, sticky="ew")
+        CTkLabel(main_frame, text="Phòng ban:").grid(row=2, column=0, padx=10, pady=10, sticky="w")
+
+        #ComboBox cho department
+        dept_options = []
+        self.dept_values = {}
+
+        if self.departments and len(self.departments) > 0:
+            for dept in self.departments:
+                # Make sure ma_phong and ten_phong are properly accessed
+                if hasattr(dept, 'ma_phong') and hasattr(dept, 'ten_phong'):
+                    option_text = f"{dept.ma_phong} - {dept.ten_phong}"
+                    dept_options.append(option_text)
+                    self.dept_values[option_text] = dept.ma_phong
+
+
+        if not dept_options:
+            dept_options = ["Vui lòng thêm phòng ban trước"]
+
+        self.dept_combo = CTkComboBox(main_frame, values=dept_options)
+        self.dept_combo.grid(row=2, column=1, padx=10, pady=10, sticky="ew")
+        if dept_options:
+            self.dept_combo.set(dept_options[0])
 
         button_frame = CTkFrame(main_frame)
         button_frame.grid(row=4, column=0, columnspan=2, pady=20, sticky="ew")
@@ -60,21 +88,35 @@ class BasePositionDialog(CTkToplevel):
                 return False, "Mã chức vụ không được để trống"
             if len(position_id) > 10:
                 return False, "Mã chức vụ không được vượt quá 10 ký tự"
+            try:
+                int(position_id)
+            except ValueError:
+                return False, "Mã chức vụ phải là số"
+
         name = self.name_entry.get().strip()
-        dept_id = self.dept_entry.get().strip()
         if not name:
             return False, "Tên chức vụ không được để trống"
-        if not dept_id:
-            return False, "Mã phòng không được để trống"
-        try:
-            dept_id_int = int(dept_id)
-            if dept_id_int <= 0:
-                return False, "Mã phòng phải là số dương"
-        except ValueError:
-            return False, "Mã phòng phải là số"
         if len(name) > 50:
             return False, "Tên chức vụ không được vượt quá 50 ký tự"
+
+        selected_dept = self.dept_combo.get()
+        if selected_dept == "Không có phòng ban":
+            return False, "Vui lòng chọn phòng ban"
+
         return True, None
+
+    def get_selected_department_id(self):
+        selected_dept = self.dept_combo.get()
+        if selected_dept in self.dept_values:
+            return self.dept_values[selected_dept]
+
+        if " - " in selected_dept:
+            try:
+                return int(selected_dept.split(" - ")[0])
+            except ValueError:
+                return None
+        return None
+
 
 class AddPositionDialog(BasePositionDialog):
     def __init__(self, parent, save_callback):
@@ -88,14 +130,18 @@ class AddPositionDialog(BasePositionDialog):
             return
         try:
             ma_chuc_vu = self.id_entry.get().strip()
-            if not ma_chuc_vu.isdigit():
-                raise ValueError("Mã chức vụ phải là số.")
             ten_chuc_vu = self.name_entry.get().strip()
-            ma_phong = int(self.dept_entry.get().strip())
+            ma_phong = self.get_selected_department_id()
+
+            if not ma_phong:
+                messagebox.showerror("Lỗi", "Không thể xác định mã phòng")
+                return
+
             self.save_callback(ma_chuc_vu, ma_phong, ten_chuc_vu)
             self.destroy()
         except ValueError as e:
             messagebox.showerror("Lỗi", str(e))
+
 
 class EditPositionDialog(BasePositionDialog):
     def __init__(self, parent, position, save_callback):
@@ -105,7 +151,18 @@ class EditPositionDialog(BasePositionDialog):
         self.id_entry.insert(0, str(position.ma_chuc_vu))
         self.id_entry.configure(state="readonly")
         self.name_entry.insert(0, str(position.ten_chuc_vu) if position.ten_chuc_vu is not None else "")
-        self.dept_entry.insert(0, str(position.ma_phong) if position.ma_phong is not None else "")
+
+
+        for option, dept_id in self.dept_values.items():
+            if dept_id == position.ma_phong:
+                self.dept_combo.set(option)
+                break
+        else:
+            # If department not found in the list, just display the ID
+            for option in self.dept_combo.cget("values"):
+                if option.startswith(f"{position.ma_phong} - "):
+                    self.dept_combo.set(option)
+                    break
 
     def on_save(self):
         valid, message = self.validate_inputs()
@@ -114,12 +171,18 @@ class EditPositionDialog(BasePositionDialog):
             return
         try:
             name = self.name_entry.get().strip()
-            dept_id = int(self.dept_entry.get().strip())
+            ma_phong = self.get_selected_department_id()
+
+            if not ma_phong:
+                messagebox.showerror("Lỗi", "Không thể xác định mã phòng")
+                return
+
             entry_id = int(self.id_entry.get().strip())
-            self.save_callback(entry_id, dept_id, name)
+            self.save_callback(entry_id, ma_phong, name)
             self.destroy()
-        except ValueError:
-            messagebox.showerror("Lỗi", "Mã chức vụ và mã phòng phải là số nguyên")
+        except ValueError as e:
+            messagebox.showerror("Lỗi", str(e))
+
 
 class ViewPositionDialog(BasePositionDialog):
     def __init__(self, parent, position):
@@ -128,8 +191,19 @@ class ViewPositionDialog(BasePositionDialog):
         self.id_entry.configure(state="readonly")
         self.name_entry.insert(0, position.ten_chuc_vu)
         self.name_entry.configure(state="readonly")
-        self.dept_entry.insert(0, str(position.ma_phong))
-        self.dept_entry.configure(state="readonly")
+
+        for option, dept_id in self.dept_values.items():
+            if dept_id == position.ma_phong:
+                self.dept_combo.set(option)
+                break
+        else:
+            # If department not found in the list, just display the ID
+            for option in self.dept_combo.cget("values"):
+                if option.startswith(f"{position.ma_phong} - "):
+                    self.dept_combo.set(option)
+                    break
+
+        self.dept_combo.configure(state="readonly")
         self.save_btn.destroy()
         self.cancel_btn.configure(text="Đóng")
 
