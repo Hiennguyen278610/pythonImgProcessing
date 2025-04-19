@@ -1,5 +1,6 @@
-# File: src/controller/PositionController.py
+
 from src.service.PositionService import PositionService
+
 
 class PositionController:
     def __init__(self):
@@ -7,6 +8,9 @@ class PositionController:
 
     def getAll(self):
         return self.service.getAll()
+
+    def getAllDepartments(self):
+        return self.service.getAllDepartments()
 
     def search(self, field, keyword):
         return self.service.search(field, keyword)
@@ -22,10 +26,8 @@ class PositionController:
         except Exception as e:
             return False, str(e)
 
-
     def update(self, ma_chuc_vu, ma_phong, ten_chuc_vu):
         try:
-
             update_data = {
                 'ma_phong': ma_phong,
                 'ten_chuc_vu': ten_chuc_vu
@@ -42,5 +44,7 @@ class PositionController:
                 return True, "Xóa chức vụ thành công"
             else:
                 return False, "Không tìm thấy chức vụ để xóa"
-        except Exception as e:
+        except ValueError as e:
             return False, str(e)
+        except Exception as e:
+            return False, f"Lỗi: {str(e)}"

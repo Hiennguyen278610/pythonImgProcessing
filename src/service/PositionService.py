@@ -1,13 +1,19 @@
 from src.model.entity.PositionEntity import Position
 from src.model.repository.PositionRespository import PositionRespository
+from src.model.repository.DepartmentRespository import DepartmentRespository
+
 
 class PositionService:
 
     def __init__(self):
         self.repository = PositionRespository()
+        self.department_repository = DepartmentRespository()
 
     def getAll(self):
         return self.repository.findAll()
+
+    def getAllDepartments(self):
+        return self.department_repository.findAll()
 
     def search(self, field, keyword):
         return self.repository.search(field, keyword)
@@ -19,6 +25,14 @@ class PositionService:
         return self.repository.findByDepartment(ma_phong)
 
     def createPosition(self, positionData):
+        existing = self.repository.findById(positionData.get('ma_chuc_vu'))
+        if existing:
+            raise ValueError(f"Mã chức vụ {positionData.get('ma_chuc_vu')} đã tồn tại.")
+
+
+        if not self.repository.checkDepartmentExists(positionData.get('ma_phong')):
+            raise ValueError(f"Mã phòng {positionData.get('ma_phong')} không tồn tại trong hệ thống.")
+
         # Tạo entity có mã người dùng nhập
         position = Position(
             ma_chuc_vu=positionData.get('ma_chuc_vu'),
@@ -35,6 +49,10 @@ class PositionService:
         if not existPosition:
             raise ValueError(f"Chức vụ có mã {ma_chuc_vu} không tồn tại.")
 
+
+        if 'ma_phong' in positionData and not self.repository.checkDepartmentExists(positionData.get('ma_phong')):
+            raise ValueError(f"Mã phòng {positionData.get('ma_phong')} không tồn tại trong hệ thống.")
+
         # Cập nhật lại giá trị
         if 'ma_phong' in positionData:
             existPosition.ma_phong = positionData.get('ma_phong')
@@ -49,10 +67,14 @@ class PositionService:
         existPosition = self.repository.findById(ma_chuc_vu)
         if not existPosition:
             raise ValueError(f"Chức vụ có mã {ma_chuc_vu} không tồn tại.")
-        return self.repository.delete(ma_chuc_vu)
+        try:
+            return self.repository.delete(ma_chuc_vu)
+        except ValueError as e:
+            raise e
+        except Exception as e:
+            raise ValueError(f"Không thể xóa chức vụ: {str(e)}")
 
     def validPosition(self, position):
-        # Convert ma_chuc_vu to string for validation
         ma_chuc_vu_str = str(position.ma_chuc_vu) if position.ma_chuc_vu is not None else ""
         if not ma_chuc_vu_str.strip():
             raise ValueError("Mã chức vụ không được để trống.")
