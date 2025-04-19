@@ -1,6 +1,6 @@
 from src.view.component.EntityFrame import EntityFrame
 from src.view.component.toolbar.FilterToolbar import FilterToolbar
-from src.view.Dialog.PositionDialog import AddPositionDialog, EditPositionDialog, ViewPositionDialog
+from src.view.dialog.PositionDialog import AddPositionDialog, EditPositionDialog, ViewPositionDialog
 from tkinter import messagebox
 
 

@@ -4,7 +4,6 @@ from src.view.component.toolbar.CRUDToolbar import CRUDToolbar
 from src.view.component.table.DataTable import DataTable
 
 class EntityFrame(CTkFrame):
-    """Abstract frame combining a filter toolbar, CRUD toolbar, and a data table."""
 
     def __init__(self, master, title, columns, controller, searchFields=None, **kwargs):
         super().__init__(master, **kwargs)
@@ -12,12 +11,10 @@ class EntityFrame(CTkFrame):
         self.title = title
         self.searchFields = searchFields or []
 
-        # Configure overall layout
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=9)
         self.grid_columnconfigure(0, weight=1)
 
-        # Header containing filter and CRUD toolbars
         self.header = CTkFrame(self)
         self.header.grid(row=0, column=0, sticky="nsew", padx=10, pady=(10,5))
         self.header.grid_rowconfigure(0, weight=1)
