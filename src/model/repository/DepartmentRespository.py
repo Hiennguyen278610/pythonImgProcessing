@@ -117,3 +117,19 @@ class DepartmentRespository:
         finally:
             cursor.close()
             connection.close()
+
+    def search(self, search_text, keyword):
+        lst = ['ma_phong',"ma_truong_phong","ten_phong"]
+        if search_text not in lst:
+            return []
+        c = self.getConnection()
+        if not c:
+            return []
+
+        cur = c.cursor()
+        query = "SELECT * FROM phong WHERE ma_phong = %s"
+        cur.execute(query, (f"%{keyword}%"))
+        row = [Department(*row) for row in cur]
+        cur.close()
+        c.close()
+        return row
