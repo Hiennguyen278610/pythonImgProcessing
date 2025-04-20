@@ -2,6 +2,7 @@ import mysql.connector
 from src.model.entity.PositionEntity import Position
 from src.utils.databaseUtil import connectDatabase
 
+
 class PositionRespository:
     def __init__(self, config=None):
         self.config = connectDatabase() if config is None else config
@@ -84,20 +85,32 @@ class PositionRespository:
             connection.close()
         return positions
 
+
+
     def insert(self, position):
         connection = self.getConnection()
         if not connection:
             return None
         cursor = connection.cursor()
+
+        check_query = "SELECT COUNT(*) FROM chuc_vu WHERE ma_chuc_vu = %s"
+        cursor.execute(check_query, (position.ma_chuc_vu,))
+        if cursor.fetchone()[0] > 0:
+            cursor.close()
+            connection.close()
+            raise ValueError(f"Mã chức vụ {position.ma_chuc_vu} đã tồn tại.")
+
         query = """INSERT INTO chuc_vu (ma_chuc_vu, ma_phong, ten_chuc_vu) VALUES (%s, %s, %s)"""
-        data = (position.ma_chuc_vu, position.ma_phong, position.ten_chuc_vu)  # Sửa thứ tự và thêm ma_chuc_vu
+        data = (position.ma_chuc_vu, position.ma_phong, position.ten_chuc_vu)
         try:
             cursor.execute(query, data)
             connection.commit()
             return position
         except mysql.connector.Error as err:
+            if err.errno == 1452:  # 1452	Lỗi khóa ngoại không hợp lệ(1062	Lỗi khóa chính trùng (Duplicate entry), 1451	Không thể xóa vì còn ràng buộc khóa ngoại)
+                raise ValueError(f"Mã phòng {position.ma_phong} không tồn tại trong hệ thống.")
             print(f"Database error: {err}")
-            return None
+            raise err
         finally:
             cursor.close()
             connection.close()
@@ -114,8 +127,10 @@ class PositionRespository:
             connection.commit()
             return position
         except mysql.connector.Error as err:
+            if err.errno == 1452:
+                raise ValueError(f"Mã phòng {position.ma_phong} không tồn tại trong hệ thống.")
             print(f"Database error: {err}")
-            return None
+            raise err
         finally:
             cursor.close()
             connection.close()
@@ -125,29 +140,40 @@ class PositionRespository:
         if not connection:
             return False
         cursor = connection.cursor()
-        query = "DELETE FROM chuc_vu WHERE ma_chuc_vu = %s"
+
+        # Check for dependencies (e.g., in employees table)
+        dependency_query = "SELECT COUNT(*) FROM nhan_vien WHERE ma_chuc_vu = %s"
         try:
+            cursor.execute(dependency_query, (ma_chuc_vu,))
+            if cursor.fetchone()[0] > 0:
+                cursor.close()
+                connection.close()
+                raise ValueError(f"Không thể xóa chức vụ này vì có nhân viên đang giữ chức vụ này.")
+
+            query = "DELETE FROM chuc_vu WHERE ma_chuc_vu = %s"
             cursor.execute(query, (ma_chuc_vu,))
             connection.commit()
             return cursor.rowcount > 0
+        except mysql.connector.Error as err:
+            print(f"Database error: {err}")
+            raise err
+        finally:
+            cursor.close()
+            connection.close()
+
+    def checkDepartmentExists(self, ma_phong):
+        connection = self.getConnection()
+        if not connection:
+            return False
+        cursor = connection.cursor()
+        query = "SELECT COUNT(*) FROM phong WHERE ma_phong = %s"
+        try:
+            cursor.execute(query, (ma_phong,))
+            count = cursor.fetchone()[0]
+            return count > 0
         except mysql.connector.Error as err:
             print(f"Database error: {err}")
             return False
         finally:
             cursor.close()
             connection.close()
-
-    def validPosition(self, position):
-        # Kiểm tra xem ma_phong có tồn tại trong bảng phong hay không
-        connection = self.repository.getConnection()
-        cursor = connection.cursor()
-        query = "SELECT COUNT(*) FROM phong WHERE ma_phong = %s"
-        cursor.execute(query, (position.ma_phong,))
-        result = cursor.fetchone()[0]
-        cursor.close()
-        connection.close()
-
-        if result == 0:
-            raise ValueError(f"Mã phòng {position.ma_phong} không tồn tại trong hệ thống.")
-
-        # Các kiểm tra khác...
