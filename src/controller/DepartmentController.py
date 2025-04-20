@@ -1,24 +1,24 @@
 from src.model.repository.DepartmentRespository import DepartmentRespository
+from src.service.DepartmentService import DepartmentService
 
 
 class DepartmentController:
     def __init__(self):
-        self.repository = DepartmentRespository()
+        self.service = DepartmentRespository()
 
     def getAll(self):
-       return self.repository.findAll()
+       return self.service.findAll()
 
     def getById(self, ma_phong):
-        return self.repository.findById(ma_phong)
+        return self.service.findById(ma_phong)
 
     def save(self,department):
-        self.repository.save(department)
+        self.service.save(department)
 
     def delete(self,department):
-        self.repository.delete(department)
+        self.service.delete(department)
 
-    def search(self, search_text):
-        departments = self.repository.findAll()
-        return [d for d in departments if search_text.lower() in (d.ten_phong or '').lower()]
+    def search(self, search_text,keyword):
+        return self.service.search(search_text,keyword)
 
 

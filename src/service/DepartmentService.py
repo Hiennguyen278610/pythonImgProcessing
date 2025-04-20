@@ -7,6 +7,9 @@ class DepartmentService:
     
     def getAll(self):
         return self.repository.findAll()
+
+    def search(self, search_text,keyword):
+        return self.repository.search(search_text, keyword)
     
     def getDepartmentByID(self, ma_phong):
         return self.repository.findById(ma_phong)

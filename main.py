@@ -1,5 +1,8 @@
 from customtkinter import *
+
+from src.controller.DepartmentController import DepartmentController
 from src.utils.viewExtention import *
+from src.view.DepartmentPanel import DepartmentPanel
 from src.view.colorVariable import *
 from src.view.component.TaskBar import TaskBar
 from src.view.EmployeePanel import EmployeePanel
@@ -66,6 +69,8 @@ def mainFrame():
             current_panel = ContractPanel(right)
         elif key == "position":
             current_panel = PositionPanel(right, PositionController())
+        elif key == "department":
+            current_panel = DepartmentPanel(right)
 
 
         # Hiển thị panel mới
@@ -76,6 +81,7 @@ def mainFrame():
     leftBottom.add_entity("Nhân viên", "employee", EmployeePanel)
     leftBottom.add_entity("Hợp đồng", "contract", ContractPanel)
     leftBottom.add_entity("Chức vụ", "position", PositionPanel)
+    leftBottom.add_entity("Phòng ban", "department", DepartmentPanel)
 
     # Gán callback cho taskbar
     leftBottom.entity_callback = on_entity_selected
