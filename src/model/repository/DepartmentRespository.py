@@ -19,12 +19,12 @@ class DepartmentRespository:
         if not connection:
             return []
         cursor = connection.cursor()
-        query = "SELECT ma_phong, ten_phong FROM phong"
+        query = "SELECT ma_phong, ma_truong_phong, ten_phong FROM phong"
         departments = []
         try:
             cursor.execute(query)
-            for (ma_phong, ten_phong) in cursor:
-                departments.append(Department(ma_phong=ma_phong, ten_phong=ten_phong))
+            for (ma_phong, ma_truong_phong, ten_phong) in cursor:
+                departments.append(Department(ma_phong=ma_phong, ma_truong_phong=ma_truong_phong, ten_phong=ten_phong))
 
         except mysql.connector.Error as err:
             print(f"Database error: {err}")
@@ -119,17 +119,25 @@ class DepartmentRespository:
             connection.close()
 
     def search(self, search_text, keyword):
-        lst = ['ma_phong',"ma_truong_phong","ten_phong"]
-        if search_text not in lst:
-            return []
-        c = self.getConnection()
-        if not c:
+        valid_fields = ['ma_phong', 'ma_truong_phong', 'ten_phong']
+        if search_text not in valid_fields:
             return []
 
-        cur = c.cursor()
-        query = "SELECT * FROM phong WHERE ma_phong = %s"
-        cur.execute(query, (f"%{keyword}%"))
-        row = [Department(*row) for row in cur]
-        cur.close()
-        c.close()
-        return row
+        connection = self.getConnection()
+        if not connection:
+            return []
+
+        cursor = connection.cursor()
+        query = f"SELECT * FROM phong WHERE {search_text} LIKE %s"
+
+        try:
+            cursor.execute(query, (f"%{keyword}%",))
+            departments = [Department(*row) for row in cursor]
+            return departments
+        except mysql.connector.Error as err:
+            print(f"Database error: {err}")
+            return []
+        finally:
+            cursor.close()
+            connection.close()
+
