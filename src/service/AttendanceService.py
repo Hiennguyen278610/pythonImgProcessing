@@ -104,3 +104,6 @@ class AttendanceService:
             self.attendance_repo.updateCheckout(ma_nhan_vien, path)
             print("Checkout")
         else: print(record[3])
+
+    def getAttendanceYearByEmployee(self, employee):
+        return self.attendance_repo.getAttendanceYearById(employee.ma_nhan_vien)

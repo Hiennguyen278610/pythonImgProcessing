@@ -180,3 +180,22 @@ class AttendanceRepository:
         query = """UPDATE cham_cong SET gio_ra = NOW(), img_checkout = %s WHERE ma_nhan_vien = %s AND ngay_cham_cong = CURDATE()"""
         cursor.execute(query, (urlImg, ma_nhan_vien))
         connection.commit()
+
+
+    def getAttendanceYearById(self, ma_nhan_vien):
+        connection = self.getConnection()
+        cursor = connection.cursor()
+        query = """SELECT distinct YEAR(ngay_cham_cong) FROM cham_cong WHERE ma_nhan_vien = %s"""
+        years = []
+
+        try:
+            cursor.execute(query, (ma_nhan_vien,))
+            years = [row[0] for row in cursor.fetchall()]
+        except mysql.connector.Error as err:
+            print(f"Database error: {err}")
+            return []
+        finally:
+            cursor.close()
+            connection.close()
+
+        return years

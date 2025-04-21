@@ -19,3 +19,6 @@ class AttendanceController:
 
     def checkIn(self, frame, ma_nhan_vien):
         self.service.checkIn(frame, ma_nhan_vien)
+
+    def getAttendanceYear(self, employee):
+        return self.service.getAttendanceYearByEmployee(employee)
