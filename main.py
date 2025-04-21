@@ -1,9 +1,14 @@
 from customtkinter import *
+
+from src.controller.DepartmentController import DepartmentController
 from src.utils.viewExtention import *
+from src.view.DepartmentPanel import DepartmentPanel
 from src.view.colorVariable import *
 from src.view.component.TaskBar import TaskBar
 from src.view.EmployeePanel import EmployeePanel
 from src.view.ContractPanel import ContractPanel
+from src.view.PositionPanel import PositionPanel
+from src.controller.PositionController import PositionController
 
 def mainFrame():
     mainPanel = CTk()
@@ -56,13 +61,18 @@ def mainFrame():
         # Xóa panel hiện tại nếu có
         if current_panel:
             current_panel.grid_forget()
-        
+
         # Tạo panel mới dựa trên entity được chọn
         if key == "employee":
             current_panel = EmployeePanel(right)
         elif key == "contract":
             current_panel = ContractPanel(right)
-        
+        elif key == "position":
+            current_panel = PositionPanel(right, PositionController())
+        elif key == "department":
+            current_panel = DepartmentPanel(right)
+
+
         # Hiển thị panel mới
         if current_panel:
             current_panel.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
@@ -70,7 +80,9 @@ def mainFrame():
     # Thêm các đối tượng vào taskbar
     leftBottom.add_entity("Nhân viên", "employee", EmployeePanel)
     leftBottom.add_entity("Hợp đồng", "contract", ContractPanel)
-    
+    leftBottom.add_entity("Chức vụ", "position", PositionPanel)
+    leftBottom.add_entity("Phòng ban", "department", DepartmentPanel)
+
     # Gán callback cho taskbar
     leftBottom.entity_callback = on_entity_selected
     

@@ -17,7 +17,7 @@ class AttendanceService:
     def load_known_faces(self):
         employees = self.employee_repo.findAll()
         for employee in employees:
-            path = os.path.join("src", "..", "Resources", employee.url_image)
+            path = os.path.join("src/../Resources", employee.url_image)
             image = face_recognition.load_image_file(path)
             encoding = face_recognition.face_encodings(image)
             if encoding:
