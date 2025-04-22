@@ -72,6 +72,8 @@ def mainFrame():
             current_panel = PositionPanel(right, PositionController())
         elif key == "department":
             current_panel = DepartmentPanel(right)
+        elif key == "attendance":
+            current_panel = AttendancePanel(right)
 
 
         # Hiển thị panel mới
