@@ -4,16 +4,19 @@ from src.model.repository.DepartmentRespository import DepartmentRespository
 class DepartmentService:
     def __init__(self):
         self.repository = DepartmentRespository()
-    
-    def getAll(self):
+
+    def findAll(self):
         return self.repository.findAll()
+
+    def save(self,department):
+        return self.repository.save(department)
+
+    def findById(self, ma_phong):
+        return self.repository.findById(ma_phong)
 
     def search(self, search_text,keyword):
         return self.repository.search(search_text, keyword)
-    
-    def getDepartmentByID(self, ma_phong):
-        return self.repository.findById(ma_phong)
-    
+
     def createDepartment(self, departmentData):
         department = Department(
             ma_phong=None,  # ID sẽ được cơ sở dữ liệu tự sinh
