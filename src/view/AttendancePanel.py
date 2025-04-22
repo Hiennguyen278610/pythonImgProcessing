@@ -1,11 +1,15 @@
 import customtkinter
 import calendar
 import datetime
+
+
 from src.controller.DepartmentController import DepartmentController
 from src.controller.EmployeeController import EmployeeController
 from src.controller.PositionController import PositionController
 from src.utils.viewExtention import getCenterInit
 from src.controller.AttendanceController import AttendanceController
+from src.view.component.toolbar.FilterToolbar import FilterToolbar
+
 
 class AttendancePanel(customtkinter.CTkFrame):
     def __init__(self, master, **kwargs):
@@ -15,9 +19,28 @@ class AttendancePanel(customtkinter.CTkFrame):
         self.controllerAttendance = AttendanceController()
         self.controllerDepartment = DepartmentController()
 
+        self.employeeList = self.controllerEmpoyee.getAll()
+
         self.leftFrame = customtkinter.CTkFrame(self, fg_color="blue", width=532, height=492)
         self.rightFrame = customtkinter.CTkFrame(self, fg_color="blue", width=650, height=492)
-        self.titleEmployee = customtkinter.CTkLabel(self.rightFrame, fg_color="white", text="", text_color="black", width=630, height=40, corner_radius=8)
+        self.searchToolbar = FilterToolbar(
+            self.leftFrame,
+            searchFields=[
+                {"label": "Mã nhân viên", "field": "ma_nhan_vien"},
+                {"label": "Tên nhân viên", "field": "ho_ten_nhan_vien"},
+                {"label": "Tên phòng", "field": "ten_phong"}
+            ],
+            searchCallback=self.search_employees,
+            resetCallback=self.reset_search,
+            width=400,
+            height=40,
+            fg_color="white",
+            corner_radius=8
+        )
+        self.searchToolbar.place(x=10, y=10)
+
+        self.titleEmployee = customtkinter.CTkLabel(self.rightFrame, fg_color="white", text="", text_color="black",
+                                                    width=630, height=40, corner_radius=8)
         self.titleEmployee.place(x=10, y=10)
         self.canlendar = customtkinter.CTkFrame(self.rightFrame, fg_color="white", width=630, height=422)
         self.canlendar.place(x=10, y=60)
@@ -35,16 +58,69 @@ class AttendancePanel(customtkinter.CTkFrame):
         headers = ["Mã nhân viên", "Tên", "Phòng"]
         headerText = f"{headers[0]:<40} {headers[1]:<40} {headers[2]:>30}"
         headerLabel = customtkinter.CTkLabel(self.leftFrame, text=headerText, fg_color="white", text_color="black", width=512, height=40, corner_radius=8)
-        headerLabel.place(x=10, y=10)
+        headerLabel.place(x=10, y=60)
 
-        scrollFrame = customtkinter.CTkScrollableFrame(self.leftFrame, width=492, height=412)
-        scrollFrame.place(x=10, y=60)
+        self.scrollFrame = customtkinter.CTkScrollableFrame(self.leftFrame, width=492, height=372)
+        self.scrollFrame.place(x=10, y=110)
 
-        employeeList = self.controllerEmpoyee.getAll()
-        for employee in employeeList:
-            text = f"{employee.ma_nhan_vien:>5} {employee.ho_ten_nhan_vien:^40} {self.controllerDepartment.getById(self.controllerPosition.getById(employee.ma_chuc_vu).ma_phong).ten_phong:^20}"
-            button = customtkinter.CTkButton(scrollFrame, text=text, fg_color="white", text_color="black", width = 492, height=40, corner_radius=0, font=("Consolas", 13), command=lambda emp = employee: self.initCalendar(emp))
+        self.populate_employee_list(self.employeeList)
+
+    def populate_employee_list(self, employees):
+        # Clear
+        for widget in self.scrollFrame.winfo_children():
+            widget.destroy()
+
+        for employee in employees:
+            department = self.controllerDepartment.getById(
+                self.controllerPosition.getById(employee.ma_chuc_vu).ma_phong
+            )
+            text = f"{employee.ma_nhan_vien:>5} {employee.ho_ten_nhan_vien:^40} {department.ten_phong:^20}"
+            button = customtkinter.CTkButton(
+                self.scrollFrame,
+                text=text,
+                fg_color="white",
+                text_color="black",
+                width=492,
+                height=40,
+                corner_radius=0,
+                font=("Consolas", 13),
+                command=lambda emp=employee: self.initCalendar(emp)
+            )
             button.pack()
+
+    def search_employees(self, field, keyword):
+        filtered_employees = []
+
+        if not keyword:
+            filtered_employees = self.employeeList
+        else:
+            keyword = keyword.lower()
+
+            for employee in self.employeeList:
+                if field == "ma_nhan_vien":
+                    # Convert ID to string for search
+                    if str(employee.ma_nhan_vien).lower().find(keyword) != -1:
+                        filtered_employees.append(employee)
+
+                elif field == "ho_ten_nhan_vien":
+                    if employee.ho_ten_nhan_vien.lower().find(keyword) != -1:
+                        filtered_employees.append(employee)
+
+                elif field == "ten_phong":
+                    department = self.controllerDepartment.getById(
+                        self.controllerPosition.getById(employee.ma_chuc_vu).ma_phong
+                    )
+                    if department.ten_phong.lower().find(keyword) != -1:
+                        filtered_employees.append(employee)
+
+        # Update danh sach
+        self.populate_employee_list(filtered_employees)
+
+    def reset_search(self):
+        # Reset
+        self.populate_employee_list(self.employeeList)
+
+
 
     def initCalendar(self, employee):
         self.titleEmployee.configure(text=employee.ho_ten_nhan_vien)
