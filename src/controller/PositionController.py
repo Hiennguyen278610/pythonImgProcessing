@@ -9,6 +9,9 @@ class PositionController:
     def getAll(self):
         return self.service.getAll()
 
+    def getById(self, ma_chuc_vu):
+        return self.service.getById(ma_chuc_vu)
+
     def getAllDepartments(self):
         return self.service.getAllDepartments()
 

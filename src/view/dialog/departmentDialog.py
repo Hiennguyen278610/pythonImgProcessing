@@ -41,14 +41,24 @@ class DepartmentDialog(CTkToplevel):
                 CTkButton(self,text="Cập nhật",command=self.save).pack(pady = 10)
         CTkButton(self,text="thoát",command=self.destroy).pack(pady = 10)
 
-
     def save(self):
         ma_truong_phong = self.ma_truong_phong.get() or None
         ten_phong = self.ten_phong.get() or None
-        ma_phong = self.department.ma_phong if self.department else None
 
-        dpm = Department(ma_phong = ma_phong,ma_truong_phong=ma_truong_phong,ten_phong=ten_phong)
-        self.controller.save(dpm)
+        if self.department is None:
+            #insert
+            department_data = {
+                'ma_truong_phong': ma_truong_phong,
+                'ten_phong': ten_phong
+            }
+            self.controller.create(department_data)
+        else:
+            #update
+            department_data = {
+                'ma_truong_phong': ma_truong_phong,
+                'ten_phong': ten_phong
+            }
+            self.controller.update(self.department.ma_phong, department_data)
 
         self.master.loadData()
         self.destroy()

@@ -7,6 +7,7 @@ from customtkinter import CTkImage
 from PIL import Image, ImageDraw
 from face_recognition import face_locations
 
+from src.controller.DepartmentController import DepartmentController
 from src.controller.PositionController import PositionController
 from src.model.repository.PositionRespository import PositionRespository
 from src.utils.viewExtention import getCenterInit
@@ -19,6 +20,7 @@ class FaceRegconiton(customtkinter.CTkFrame):
         self.controller = AttendanceController()
         self.controller.loadData()
         self.controllerPosition = PositionController()
+        self.controllerDepartment = DepartmentController()
 
         self.rightFrame = customtkinter.CTkFrame(self, fg_color="blue", width=380, height=680)
         self.rightFrame.place(x=860, y=0)
@@ -81,14 +83,19 @@ class FaceRegconiton(customtkinter.CTkFrame):
             self.imgEmployee.image = ctk_img
         self.nameEmployee.configure(text=f"Tên: {employee.ho_ten_nhan_vien}")
         self.idEmployee.configure(text=f"Mã nhân viên: {employee.ma_nhan_vien}")
-        self.positionEmployee.configure(text=f"Chức vụ: {self.controllerPosition.getChucVu(employee.ma_chuc_vu)}")
-        self.departmentEmployee.configure(text=f"Phòng ban: {self.controllerPosition.getPhong(employee.ma_chuc_vu)}")
+        self.positionEmployee.configure(text=f"Chức vụ: {self.controllerPosition.getById(employee.ma_chuc_vu).ten_chuc_vu}")
+        self.departmentEmployee.configure(text=f"Phòng ban: {self.controllerDepartment.getById(self.controllerPosition.getById(employee.ma_chuc_vu).ma_phong).ten_phong}")
 
     def confirmBox(self, frame, employee):
-        buttonYes = customtkinter.CTkButton(self.rightFrame, text="Điểm danh", fg_color="green", text_color="white", width=150, height=50, command=lambda: self.buttonYesActive(frame, employee))
-        buttonNo = customtkinter.CTkButton(self.rightFrame, text="Thử lại", fg_color="red", text_color="white", width=150, height=50, command=lambda: self.after(10, self.recognize))
-        buttonYes.place(x=20, y=510,)
-        buttonNo.place(x=210, y=510)
+        self.buttonYes = customtkinter.CTkButton(self.rightFrame, text="Điểm danh", fg_color="green", text_color="white", width=150, height=50, command=lambda: self.buttonYesActive(frame, employee))
+        self.buttonNo = customtkinter.CTkButton(self.rightFrame, text="Thử lại", fg_color="red", text_color="white", width=150, height=50, command=lambda: self.tryAgain())
+        self.buttonYes.place(x=20, y=510,)
+        self.buttonNo.place(x=210, y=510)
+
+    def tryAgain(self):
+        self.buttonYes.destroy()
+        self.buttonNo.destroy()
+        self.after(10, self.recognize)
 
     def buttonYesActive(self, frame, employee):
         self.controller.checkIn(frame, employee.ma_nhan_vien)
