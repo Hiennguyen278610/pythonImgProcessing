@@ -2,6 +2,8 @@ from customtkinter import CTkFrame
 from src.view.component.toolbar.FilterToolbar import FilterToolbar
 from src.view.component.toolbar.CRUDToolbar import CRUDToolbar
 from src.view.component.table.DataTable import DataTable
+from src.view.colorVariable import *
+from src.utils.viewExtention import configFrame
 
 class EntityFrame(CTkFrame):
 
@@ -10,15 +12,15 @@ class EntityFrame(CTkFrame):
         self.controller = controller
         self.title = title
         self.searchFields = searchFields or []
-
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_rowconfigure(1, weight=9)
+        for i in range(15):
+            self.grid_rowconfigure(i, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
-        self.header = CTkFrame(self)
-        self.header.grid(row=0, column=0, sticky="nsew", padx=10, pady=(10,5))
-        self.header.grid_rowconfigure(0, weight=1)
-        self.header.grid_rowconfigure(1, weight=1)
+        self.header = CTkFrame(self, fg_color=bgClr, **configFrame())
+        self.header.grid(row=0, column=0, sticky="nsew", rowspan=2, padx=10)
+        self.header.grid_propagate(False)
+        for i in range(2):
+            self.header.grid_rowconfigure(i, weight=1)
         self.header.grid_columnconfigure(0, weight=1)
 
         # Filter toolbar (searchFields must be provided by subclass)
@@ -28,7 +30,7 @@ class EntityFrame(CTkFrame):
             searchCallback=self.onSearch,
             resetCallback=self.onReset
         )
-        self.filterTool.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
+        self.filterTool.grid(row=0, column=0, sticky="nsew", padx=2, pady=2)
 
         # CRUD toolbar
         self.crudTool = CRUDToolbar(
@@ -38,11 +40,12 @@ class EntityFrame(CTkFrame):
             deleteCallback=self.onDelete,
             viewCallback=self.onView
         )
-        self.crudTool.grid(row=1, column=0, sticky="nsew", padx=5, pady=5)
+        self.crudTool.grid(row=1, column=0, sticky="nsew", padx=2, pady=2)
 
         # Content area with DataTable
-        self.content = CTkFrame(self)
-        self.content.grid(row=1, column=0, sticky="nsew", padx=10, pady=(5,10))
+        self.content = CTkFrame(self, fg_color="white", **configFrame(10))
+        self.content.grid(row=2, column=0, sticky="nsew", rowspan=13, padx=10, pady=10)
+        self.content.grid_propagate(False)
         self.content.grid_rowconfigure(0, weight=1)
         self.content.grid_columnconfigure(0, weight=1)
 
@@ -50,9 +53,11 @@ class EntityFrame(CTkFrame):
         self.table = DataTable(
             self.content,
             columns=columns,
-            rowSelectCallback=self.onRowSelect
+            rowSelectCallback=self.onRowSelect,
+            fg_color="transparent",
+            **configFrame()
         )
-        self.table.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
+        self.table.grid(row=0, column=0, sticky="nsew", padx=2, pady=2)
 
         # Load initial data
         self.loadData()

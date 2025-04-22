@@ -1,4 +1,9 @@
-from customtkinter import *
+def configFrame (radius=0):
+    return {
+        'corner_radius': radius,
+        'width': 0,
+        'height': 0
+    }
 
 def getCenterInit(frame, windowW, windowH):
     currentW = frame.winfo_screenwidth()

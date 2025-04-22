@@ -75,7 +75,7 @@ def mainFrame():
 
         # Hiển thị panel mới
         if current_panel:
-            current_panel.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
+            current_panel.grid(row=0, column=0, sticky="nsew")
     
     # Thêm các đối tượng vào taskbar
     leftBottom.add_entity("Nhân viên", "employee", EmployeePanel)

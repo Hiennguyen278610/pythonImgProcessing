@@ -4,19 +4,20 @@ from src.controller.EmployeeController import EmployeeController
 
 class EmployeePanel(BasePanel):
     def __init__(self, master, **kwargs):
-        # Định nghĩa các cột cho Employee
         columns = [
-            {"field": "ma_nhan_vien", "header": "ID", "width": 1},
-            {"field": "ho_ten_nhan_vien", "header": "Họ tên", "width": 4},
-            {"field": "so_dien_thoai", "header": "SĐT", "width": 2},
+            {"field": "ma_nhan_vien", "header": "Mã NV", "width": 1},
+            {"field": "ten_nhan_vien", "header": "Tên NV", "width": 2},
+            {"field": "chuc_vu", "header": "Chức vụ", "width": 2},
+            {"field": "ngay_sinh", "header": "Ngày sinh", "width": 2},
             {"field": "gioi_tinh", "header": "Giới tính", "width": 1},
-            {"field": "dia_chi", "header": "Địa chỉ", "width": 4}
         ]
-
-        # Khởi tạo controller
+        search_fields = [
+            {"label": "Mã nhân viên", "field": "ma_nhan_vien"},
+            {"label": "Tên nhân viên", "field": "ten_nhan_vien"},
+            {"label": "Chức vụ", "field": "chuc_vu"},
+        ]
         controller = EmployeeController()
-
-        super().__init__(master, title="Nhân viên", columns=columns, controller=controller, **kwargs)
+        super().__init__(master, title="Nhân viên", columns=columns, controller=controller, searchFields=search_fields, **kwargs)
 
     def getIDField(self):
         """Trả về tên trường ID của đối tượng"""

@@ -3,7 +3,6 @@ from src.controller.ContractController import ContractController
 
 class ContractPanel(BasePanel):
     def __init__(self, master, **kwargs):
-        # Định nghĩa các cột cho Contract
         columns = [
             {"field": "ma_hop_dong", "header": "ID", "width": 1},
             {"field": "ma_nhan_vien", "header": "Mã NV", "width": 1},
@@ -11,11 +10,15 @@ class ContractPanel(BasePanel):
             {"field": "ngay_ky", "header": "Ngày ký", "width": 2},
             {"field": "muc_luong", "header": "Lương", "width": 3}
         ]
-        
-        # Khởi tạo controller
+        search_fields = [
+            {"label": "Mã hợp đồng", "field": "ma_hop_dong"},
+            {"label": "Mã nhân viên", "field": "ma_nhan_vien"},
+            {"label": "Thời hạn", "field": "thoi_han"},
+            {"label": "Ngày ký", "field": "ngay_ky"},
+            {"label": "Lương", "field": "muc_luong"},
+        ]
         controller = ContractController()
-        
-        super().__init__(master, title="Hợp đồng", columns=columns, controller=controller, **kwargs)
+        super().__init__(master, title="Hợp đồng", columns=columns, controller=controller, searchFields=search_fields, **kwargs)
     
     def getIDField(self):
         """Trả về tên trường ID của đối tượng"""

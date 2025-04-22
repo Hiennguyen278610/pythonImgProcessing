@@ -1,4 +1,13 @@
-from customtkinter import CTkFrame, CTkEntry, CTkButton, CTkOptionMenu, StringVar
+from customtkinter import *
+from src.view.colorVariable import *
+
+configButton = {
+    "fg_color": bgClr,
+    "text_color": textClr,
+    "border_color": borderClr,
+    "border_width": 2,
+}
+
 
 class FilterToolbar(CTkFrame):
     def __init__(self, master,
@@ -6,7 +15,7 @@ class FilterToolbar(CTkFrame):
                  searchCallback=None,
                  resetCallback=None,
                  **kwargs):
-        super().__init__(master, **kwargs)
+        super().__init__(master, fg_color="white", **kwargs)
 
         self.searchCallback = searchCallback
         self.resetCallback = resetCallback
@@ -21,18 +30,19 @@ class FilterToolbar(CTkFrame):
 
         self.fieldMenu = CTkOptionMenu(self,
             values=labels,
-            variable=self.selected_label
+            variable=self.selected_label,
+            fg_color=bgClr,
         )
-        self.fieldMenu.grid(row=0, column=0, padx=(0,5), pady=5, sticky="nsew")
+        self.fieldMenu.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
 
-        self.searchEntry = CTkEntry(self, placeholder_text="Nhập từ khoá…")
+        self.searchEntry = CTkEntry(self, placeholder_text="Nhập từ khoá…", **configButton)
         self.searchEntry.grid(row=0, column=1, padx=5, pady=5, sticky="nsew")
 
-        self.searchBtn = CTkButton(self, text="Tìm", command=self.onSearch)
+        self.searchBtn = CTkButton(self, text="Tìm", command=self.onSearch, **configButton)
         self.searchBtn.grid(row=0, column=2, padx=5, pady=5, sticky="nsew")
 
-        self.resetBtn = CTkButton(self, text="Reset", command=self.onReset)
-        self.resetBtn.grid(row=0, column=3, padx=(5,0), pady=5, sticky="nsew")
+        self.resetBtn = CTkButton(self, text="Reset", command=self.onReset, **configButton)
+        self.resetBtn.grid(row=0, column=3, padx=5, pady=5, sticky="nsew")
 
     def onSearch(self):
         query = self.searchEntry.get().strip()

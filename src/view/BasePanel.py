@@ -2,9 +2,11 @@ from customtkinter import CTkFrame
 from src.view.component.EntityFrame import EntityFrame
 from CTkMessagebox import CTkMessagebox
 from src.utils.messageUtil import show_info, show_warning, show_error
+from src.view.colorVariable import * 
 
 class BasePanel(CTkFrame):
     def __init__(self, master, title, columns, controller, **kwargs):
+        searchFields = kwargs.pop("searchFields", [])
         super().__init__(master, **kwargs)
         self.title = title
         self.controller = controller
@@ -18,7 +20,10 @@ class BasePanel(CTkFrame):
             self, 
             title=title,
             columns=columns,
-            controller=controller
+            controller=controller,
+            searchFields=searchFields,
+            fg_color=bgClr,
+            corner_radius=0
         )
         self.entityFrame.grid(row=0, column=0, sticky="nsew", padx=0, pady=0)
         

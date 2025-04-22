@@ -1,14 +1,18 @@
 from customtkinter import *
+# from src.utils.viewExtention import configFrame
 
 class DataTable(CTkScrollableFrame):
     def __init__(self, master, columns, rowSelectCallback=None, **kwargs):
         super().__init__(master, **kwargs)
+        self.scrollable = getattr(self, "_scrollbar", None) 
+        self.scrollable.grid_remove()
         
         self.data = []
         self.columns = columns
         self.rowSelectCallback = rowSelectCallback
         self.selectedRow = None
         self.rowValue = None
+        self.totalWidth = sum(col.get("width", 1) for col in self.columns)
         self.initHeader()
 
         self.rowValue = CTkFrame(self)
@@ -17,9 +21,12 @@ class DataTable(CTkScrollableFrame):
     def initHeader(self):
         headerFrame = CTkFrame(self)
         headerFrame.pack(fill="x", padx=0, pady=(0, 5))
-        for i, col in enumerate(self.columns):
-            headerFrame.grid_columnconfigure(i, weight=col.get("width", 1))
-            self.geneColumn(headerFrame, col, i)
+        for i in range(self.totalWidth):
+            headerFrame.grid_columnconfigure(i, weight=1)
+        cnt = 0
+        for col in self.columns:
+            self.geneColumn(headerFrame, col, cnt)
+            cnt += col.get("width", 1)
     
     def updateDataTable(self, data):
         self.data = data
@@ -34,11 +41,14 @@ class DataTable(CTkScrollableFrame):
         for i, item in enumerate(self.data):
             rowFrame = CTkFrame(self.rowValue)
             rowFrame.pack(fill="x", padx=0, pady=(0, 2))
+            for k in range(self.totalWidth):
+                rowFrame.grid_columnconfigure(k, weight=1)
+            cnt = 0
             for j, col in enumerate(self.columns):
-                rowFrame.grid_columnconfigure(j, weight=col.get("width", 1))
                 field = col.get("field", "")
                 value = item.__dict__.get(field, "") if hasattr(item, field) else ""
-                self.genecell(rowFrame, value, j)
+                self.genecell(rowFrame, value, cnt, col.get("width", 1))
+                cnt += col.get("width", 1)
             
             # Gắn sự kiện click
             rowFrame.bind("<Button-1>", lambda e, row=item, idx=i: self.onclickRow(row, idx))
@@ -53,15 +63,15 @@ class DataTable(CTkScrollableFrame):
         if self.rowSelectCallback:
             self.rowSelectCallback(row)
             
-    def geneColumn(self, headerFrame, col, i):
-        weight = col.get("width", 1)
-        headerFrame.grid_columnconfigure(i, weight=weight)
+    def geneColumn(self, headerFrame, col, current_col):
         header = CTkLabel(headerFrame, text=col.get("header", ""), font=("Arial", 12, "bold"), anchor="center")
-        header.grid(row=0, column=i, sticky="nsew", padx=5, pady=5)
+        header.grid_propagate(False)
+        header.grid(row=0, column=current_col, columnspan=col.get("width", 1), sticky="nsew", padx=5, pady=5)
         
-    def genecell(self, rowFrame, value, j):
+    def genecell(self, rowFrame, value, current_col, colspan):
         cell = CTkLabel(rowFrame, text=str(value), anchor="center")
-        cell.grid(row=0, column=j, sticky="nsew", padx=5, pady=5)
+        cell.grid_propagate(False)
+        cell.grid(row=0, column=current_col, columnspan=colspan, sticky="nsew", padx=5, pady=5)
 
     def getSelected(self):
         return self.selectedRow

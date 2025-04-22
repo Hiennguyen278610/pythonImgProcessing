@@ -21,6 +21,9 @@ class TaskBar(CTkScrollableFrame):
     """Thanh chứa các nút điều hướng đến các đối tượng khác nhau"""
     def __init__(self, master, entity_callback=None, **kwargs):
         super().__init__(master, **kwargs)
+        
+        self.scrollable = getattr(self, "_scrollbar", None) 
+        self.scrollable.grid_remove()
         self.entity_callback = entity_callback  # Callback khi nhấn nút đối tượng
         self.entities = []  # Danh sách đối tượng
         self.buttons = {}  # Lưu trữ các nút theo key
