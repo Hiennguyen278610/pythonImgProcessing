@@ -22,3 +22,6 @@ class AttendanceController:
 
     def getAttendanceYear(self, employee):
         return self.service.getAttendanceYearByEmployee(employee)
+
+    def getAttendanceOfEmployee(self, employee):
+        return self.service.getAttendanceByEmployee(employee)

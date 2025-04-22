@@ -2,6 +2,7 @@ from customtkinter import *
 
 from src.controller.DepartmentController import DepartmentController
 from src.utils.viewExtention import *
+from src.view.AttendancePanel import AttendancePanel
 from src.view.DepartmentPanel import DepartmentPanel
 from src.view.colorVariable import *
 from src.view.component.TaskBar import TaskBar
@@ -82,6 +83,7 @@ def mainFrame():
     leftBottom.add_entity("Hợp đồng", "contract", ContractPanel)
     leftBottom.add_entity("Chức vụ", "position", PositionPanel)
     leftBottom.add_entity("Phòng ban", "department", DepartmentPanel)
+    leftBottom.add_entity("Điểm danh", "attendance", AttendancePanel)
 
     # Gán callback cho taskbar
     leftBottom.entity_callback = on_entity_selected

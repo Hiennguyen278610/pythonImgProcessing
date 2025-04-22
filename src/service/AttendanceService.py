@@ -107,3 +107,6 @@ class AttendanceService:
 
     def getAttendanceYearByEmployee(self, employee):
         return self.attendance_repo.getAttendanceYearById(employee.ma_nhan_vien)
+
+    def getAttendanceByEmployee(self, employee):
+        return self.attendance_repo.findByEmployeeId(employee.ma_nhan_vien)

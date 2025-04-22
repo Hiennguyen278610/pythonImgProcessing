@@ -15,6 +15,9 @@ class PositionService:
     def getAllDepartments(self):
         return self.department_repository.findAll()
 
+    def getById(self, ma_chuc_vu):
+        return self.repository.findById(ma_chuc_vu)
+
     def search(self, field, keyword):
         return self.repository.search(field, keyword)
 

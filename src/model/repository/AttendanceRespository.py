@@ -71,13 +71,14 @@ class AttendanceRepository:
         
         try:
             cursor.execute(query, (ma_nhan_vien,))
-            for (ma_nhan_vien, ngay_cham_cong, gio_vao, gio_ra, img) in cursor:
+            for (ma_nhan_vien, ngay_cham_cong, gio_vao, gio_ra, img_checkin, img_checkout) in cursor:
                 attendance = Attendance(
                     ma_nhan_vien=ma_nhan_vien,
                     ngay_cham_cong=ngay_cham_cong,
                     gio_vao=gio_vao,
                     gio_ra=gio_ra,
-                    img=img
+                    img_checkin = img_checkin,
+                    img_checkout = img_checkout
                 )
                 attendances.append(attendance)
         except mysql.connector.Error as err:
