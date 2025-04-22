@@ -11,6 +11,7 @@ class EntityFrame(CTkFrame):
         super().__init__(master, **kwargs)
         self.controller = controller
         self.title = title
+        self.selected_item = None 
         self.searchFields = searchFields or []
         for i in range(15):
             self.grid_rowconfigure(i, weight=1)
@@ -73,16 +74,17 @@ class EntityFrame(CTkFrame):
         self.loadData()
 
     def onAdd(self):
-        raise NotImplementedError
+        self.master.onAdd()
 
     def onEdit(self):
-        raise NotImplementedError
+        self.master.onEdit()
 
     def onDelete(self):
-        raise NotImplementedError
-
+        self.master.onDelete()
+    
     def onView(self):
-        raise NotImplementedError
+        self.master.onView()
 
     def onRowSelect(self, selected_item):
-        raise NotImplementedError
+        self.selected_item = selected_item
+        self.crudTool.enableItemButtons(True)

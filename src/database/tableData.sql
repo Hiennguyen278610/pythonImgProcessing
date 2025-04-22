@@ -12,6 +12,7 @@ CREATE TABLE nhan_vien (
     dia_chi VARCHAR(100) not null,
     gioi_tinh enum("nam", "nu") not null,
     ngay_vao_lam DATE not null,
+    trang_thai enum("active", "deleted"),
     url_image VARCHAR(255) not null
 );
 
@@ -60,12 +61,12 @@ INSERT INTO chuc_vu (ma_chuc_vu, ma_phong, ten_chuc_vu) VALUES
 (5, '4', 'Kế toán'),
 (6, '5', 'Chuyên viên marketing');
 
-INSERT INTO nhan_vien (ma_ngql, ma_chuc_vu, ho_ten_nhan_vien, ngay_sinh, so_dien_thoai, dia_chi, gioi_tinh, ngay_vao_lam, url_image) VALUES
-(NULL, 1, 'Nguyễn Văn A', '1985-05-20', '0909123456', '123 Đường A, Quận 1', 'nam', '2010-01-15', 'faceImg\\messi.jpg'),
-(1, 3, 'Trần Thị B', '1990-09-12', '0912345678', '456 Đường B, Quận 2', 'nu', '2015-06-01', 'faceImg\\goat.jpg'),
-(1, 4, 'Lê Văn C', '1992-11-25', '0923456789', '789 Đường C, Quận 3', 'nam', '2018-03-10', 'faceImg\\ronaldo.jpg'),
-(2, 5, 'Phạm Hồng D', '1988-07-30', '0932123456', '321 Đường D, Quận 4', 'nu', '2012-10-20', 'faceImg\\neymar.jpg'),
-(3, 6, 'Đỗ Thanh E', '1995-04-18', '0941234567', '654 Đường E, Quận 5', 'nam', '2020-08-05', 'faceImg\\dimaria.jpg');
+INSERT INTO nhan_vien (ma_ngql, ma_chuc_vu, ho_ten_nhan_vien, ngay_sinh, so_dien_thoai, dia_chi, gioi_tinh, ngay_vao_lam, trang_thai,url_image) VALUES
+(NULL, 1, 'Nguyễn Văn A', '1985-05-20', '0909123456', '123 Đường A, Quận 1', 'nam', '2010-01-15', 'active', 'faceImg\\messi.jpg'),
+(1, 3, 'Trần Thị B', '1990-09-12', '0912345678', '456 Đường B, Quận 2', 'nu', '2015-06-01', 'active','faceImg\\goat.jpg'),
+(1, 4, 'Lê Văn C', '1992-11-25', '0923456789', '789 Đường C, Quận 3', 'nam', '2018-03-10', 'active','faceImg\\ronaldo.jpg'),
+(2, 5, 'Phạm Hồng D', '1988-07-30', '0932123456', '321 Đường D, Quận 4', 'nu', '2012-10-20', 'active','faceImg\\neymar.jpg'),
+(3, 6, 'Đỗ Thanh E', '1995-04-18', '0941234567', '654 Đường E, Quận 5', 'nam', '2020-08-05', 'deleted','faceImg\\dimaria.jpg');
 
 INSERT INTO hop_dong (ma_nhan_vien, thoi_han, ngay_ky, muc_luong) VALUES
 (1, '3 năm', '2020-01-01', 15000000.00),
