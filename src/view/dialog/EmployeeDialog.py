@@ -1,9 +1,17 @@
-from customtkinter import *
-from CTkMessagebox import CTkMessagebox
-from tkinter import filedialog
-from PIL import Image, ImageTk
 import os
-from datetime import datetime
+from customtkinter import *
+from src.view.colorVariable import *
+from CTkMessagebox import CTkMessagebox
+from tkcalendar import DateEntry
+from src.utils.viewExtention import *
+from src.utils.timeConvert import *
+from src.controller.PositionController import PositionController
+from src.controller.DepartmentController import DepartmentController
+
+textConfig = {
+    "font": ("Arial", 13, "normal"),
+    "text_color": "black"
+}
 
 class EmployeeDialog(CTkToplevel):
     def __init__(self, master, controller, mode="view", employee=None, callback=None):
@@ -18,27 +26,25 @@ class EmployeeDialog(CTkToplevel):
         self.controller = controller
         self.mode = mode
         self.employee = employee
+        self.position = PositionController().getAll()
+        self.department = DepartmentController().getAll()
         self.callback = callback
         self.image_data = None
         
-        # Cấu hình dialog
-        self.setupDialog()
         
-        # Tạo giao diện
+        self.setupDialog()
         self.createWidgets()
         
         # Load dữ liệu nếu ở chế độ edit hoặc view
         if self.employee:
             self.loadEmployeeData()
-        
-        # Disable controls trong chế độ view
+            
         if self.mode == "view":
             self.disableControls()
             
         # Tự động chọn input đầu tiên trong form (nếu không ở chế độ xem)
         if self.mode != "view":
-            self.name_entry.focus_set()
-            
+            self.nameEntry.focus_set()
         # Hiển thị dialog (modal)
         self.grab_set()
         
@@ -52,228 +58,162 @@ class EmployeeDialog(CTkToplevel):
         self.title(title_texts.get(self.mode, "Nhân viên"))
         
         # Kích thước và vị trí
-        width, height = 720, 600
-        x = (self.winfo_screenwidth() - width) // 2
-        y = (self.winfo_screenheight() - height) // 2
+        width, height, x, y = getCenterInit(self, 660, 605)
         self.geometry(f"{width}x{height}+{x}+{y}")
         self.resizable(False, False)
     
     def createWidgets(self):
-        # Main container
-        self.main_frame = CTkFrame(self)
-        self.main_frame.pack(fill="both", expand=True, padx=20, pady=20)
+        self.body = CTkFrame(self)
+        self.body.pack(fill="both", expand=True)
         
-        # Form layout
-        self.form_frame = CTkFrame(self.main_frame)
-        self.form_frame.pack(fill="both", expand=True)
+        self.fromLayout = CTkFrame(self.body, fg_color="white")
+        self.fromLayout.pack(fill="both", expand=True)
+        self.fromLayout.grid_propagate(False) 
+        for i in range(12):
+            self.fromLayout.grid_columnconfigure(i, weight=1)
+        for i in range(11):
+            self.fromLayout.grid_rowconfigure(i, weight=1)
+
+        self.infoLabel = CTkLabel(self.fromLayout, text="THÔNG TIN CÁ NHÂN", font=("Arial", 14, "bold"), text_color="black", **configFrame())
+        self.infoLabel.grid(row=0, column=0, rowspan=1, columnspan=12, sticky="nsew")
+
+        self.browseFile = CTkFrame(self.fromLayout, fg_color="transparent", border_color="black", border_width=2, **configFrame(10))
+        self.browseFile.grid(row=1, column=0, rowspan=5, columnspan=6, padx=10, pady=10, sticky="nsew")
+
+        self.nameLabel = CTkLabel(self.fromLayout, text="Họ và tên:", **textConfig, **configFrame())
+        self.nameLabel.grid(row=1, column=6, rowspan=1, columnspan=1, sticky="nse")
+
+        self.bodLabel = CTkLabel(self.fromLayout, text="Ngày sinh:", **textConfig, **configFrame())
+        self.bodLabel.grid(row=2, column=6, rowspan=1, columnspan=1, sticky="nse")
+
+        self.genderLabel = CTkLabel(self.fromLayout, text="Giới tính:", **textConfig, **configFrame())
+        self.genderLabel.grid(row=3, column=6, rowspan=1, columnspan=1, sticky="nse")
+
+        self.phoneLabel = CTkLabel(self.fromLayout, text="Số điện thoại:", **textConfig, **configFrame())
+        self.phoneLabel.grid(row=4, column=6, rowspan=1, columnspan=1, sticky="nse")
+
+        self.adressLabel = CTkLabel(self.fromLayout, text="Địa chỉ:", **textConfig, **configFrame())
+        self.adressLabel.grid(row=5, column=6, rowspan=1, columnspan=1, sticky="nse")
+
+        self.nameEntry = CTkEntry(self.fromLayout, height=30)
+        self.nameEntry.grid(row=1, column=7, rowspan=1, columnspan=5, padx=5, pady=2, sticky="ew")
+
+        self.bodEntry = DateEntry(self.fromLayout, height=30, date_pattern='yyyy-MM-dd', state="readonly")
+        self.bodEntry.grid(row=2, column=7, rowspan=1, columnspan=5, padx=5, pady=2, sticky="ew")
+
+        self.genderEntry = CTkFrame(self.fromLayout, fg_color="transparent", **configFrame())
+        self.genderEntry.grid(row=3, column=7, rowspan=1, columnspan=5, padx=5, pady=2, sticky="ew")
+        self.genderEntry.grid_columnconfigure((0, 1), weight=1)
         
-        # Tiêu đề
-        title_texts = {
-            "view": "THÔNG TIN CHI TIẾT NHÂN VIÊN",
-            "edit": "CHỈNH SỬA THÔNG TIN NHÂN VIÊN",
-            "add": "THÊM NHÂN VIÊN MỚI"
-        }
-        CTkLabel(self.form_frame, text=title_texts.get(self.mode), 
-                font=("Arial", 16, "bold")).pack(pady=10)
+        self.genderValue = StringVar(value="nam")
+        self.maleOption = CTkRadioButton(self.genderEntry, text="Nam", text_color="black", variable=self.genderValue, value="nam")
+        self.maleOption.grid(row=0, column=0, sticky="nsew", padx=5, pady=2)
+
+        self.femaleOption = CTkRadioButton(self.genderEntry, text="Nữ", text_color="black", variable=self.genderValue, value="nu")
+        self.femaleOption.grid(row=0, column=1, sticky="nsew", padx=5, pady=2)
         
-        # Tạo form chính
-        self.content_frame = CTkFrame(self.form_frame)
-        self.content_frame.pack(fill="both", expand=True, padx=15, pady=10)
+
+        self.phoneEntry = CTkEntry(self.fromLayout, height=30)
+        self.phoneEntry.grid(row=4, column=7, rowspan=1, columnspan=5, padx=5, pady=2, sticky="ew")
+
+        self.addressEntry = CTkEntry(self.fromLayout, height=30)
+        self.addressEntry.grid(row=5, column=7, rowspan=1, columnspan=5, padx=5, pady=2, sticky="ew")
+
+        self.staffLabel = CTkLabel(self.fromLayout, text="THÔNG TIN NGHIỆP VỤ", font=("Arial", 14, "bold"), text_color="black", **configFrame())
+        self.staffLabel.grid(row=6, column=0, rowspan=1, columnspan=12, sticky="nsew")
+
+        self.managerLabel = CTkLabel(self.fromLayout, text="Người quản lý:", **textConfig, **configFrame())
+        self.managerLabel.grid(row=7, column=0, rowspan=1, columnspan=4, sticky="nse")
+
+        managers = convertDataComboBox(self.department, "ten_phong", "ma_truong_phong")
+        self.managerEntry = CTkComboBox(self.fromLayout, height=30, values=list(managers.keys()), state="readonly")
+        self.managerEntry.grid(row=7, column=4, rowspan=1, columnspan=7, padx=5, pady=2, sticky="ew")
+        self.managerEntry.set(list(managers.keys())[0])
+
+        self.positonLabel = CTkLabel(self.fromLayout, text="Chức vụ:", **textConfig, **configFrame())
+        self.positonLabel.grid(row=8, column=0, rowspan=1, columnspan=4, sticky="nse")
+
+        positions = convertDataComboBox(self.position, "ten_chuc_vu", "ma_chuc_vu")
+        self.positionEntry = CTkComboBox(self.fromLayout, height=30, values=list(positions.keys()), state="readonly")
+        self.positionEntry.grid(row=8, column=4, rowspan=1, columnspan=7, padx=5, pady=2, sticky="ew")
+        self.positionEntry.set(list(positions.keys())[0])
+
+        self.startDateLabel = CTkLabel(self.fromLayout, text="Ngày vào làm:", **textConfig, **configFrame())
+        self.startDateLabel.grid(row=9, column=0, rowspan=1, columnspan=4, sticky="nse")
         
-        # Layout grid
-        for i in range(2):
-            self.content_frame.grid_columnconfigure(i, weight=1)
-        
-        # === Thông tin cá nhân ===
-        row = 0
-        CTkLabel(self.content_frame, text="THÔNG TIN CÁ NHÂN", 
-                font=("Arial", 14, "bold")).grid(row=row, column=0, columnspan=2, 
-                sticky="w", pady=(5, 10))
-        
-        # Họ tên
-        row += 1
-        CTkLabel(self.content_frame, text="Họ tên:").grid(row=row, column=0, 
-                sticky="e", padx=10, pady=8)
-        self.name_entry = CTkEntry(self.content_frame, width=250)
-        self.name_entry.grid(row=row, column=1, sticky="w", padx=10)
-        
-        # Ngày sinh
-        row += 1
-        CTkLabel(self.content_frame, text="Ngày sinh:").grid(row=row, column=0, 
-                sticky="e", padx=10, pady=8)
-        self.birthdate_entry = CTkEntry(self.content_frame, width=250, 
-                placeholder_text="YYYY-MM-DD")
-        self.birthdate_entry.grid(row=row, column=1, sticky="w", padx=10)
-        
-        # Giới tính
-        row += 1
-        CTkLabel(self.content_frame, text="Giới tính:").grid(row=row, column=0, 
-                sticky="e", padx=10, pady=8)
-        self.gender_frame = CTkFrame(self.content_frame, fg_color="transparent")
-        self.gender_frame.grid(row=row, column=1, sticky="w", padx=10)
-        self.gender_var = StringVar(value="nam")
-        self.male_radio = CTkRadioButton(self.gender_frame, text="Nam", 
-                variable=self.gender_var, value="nam")
-        self.male_radio.pack(side="left", padx=(0, 20))
-        self.female_radio = CTkRadioButton(self.gender_frame, text="Nữ", 
-                variable=self.gender_var, value="nu")
-        self.female_radio.pack(side="left")
-        
-        # Số điện thoại
-        row += 1
-        CTkLabel(self.content_frame, text="Số điện thoại:").grid(row=row, column=0, 
-                sticky="e", padx=10, pady=8)
-        self.phone_entry = CTkEntry(self.content_frame, width=250)
-        self.phone_entry.grid(row=row, column=1, sticky="w", padx=10)
-        
-        # Địa chỉ
-        row += 1
-        CTkLabel(self.content_frame, text="Địa chỉ:").grid(row=row, column=0, 
-                sticky="e", padx=10, pady=8)
-        self.address_entry = CTkEntry(self.content_frame, width=250)
-        self.address_entry.grid(row=row, column=1, sticky="w", padx=10)
-        
-        # === Thông tin công việc ===
-        row += 1
-        CTkLabel(self.content_frame, text="THÔNG TIN CÔNG VIỆC", 
-                font=("Arial", 14, "bold")).grid(row=row, column=0, columnspan=2, 
-                sticky="w", pady=(20, 10))
-        
-        # Chức vụ
-        row += 1
-        CTkLabel(self.content_frame, text="Chức vụ:").grid(row=row, column=0, 
-                sticky="e", padx=10, pady=8)
-        self.position_combo = CTkComboBox(self.content_frame, width=250)
-        self.position_combo.grid(row=row, column=1, sticky="w", padx=10)
-        
-        # Người quản lý
-        row += 1
-        CTkLabel(self.content_frame, text="Người quản lý:").grid(row=row, column=0, 
-                sticky="e", padx=10, pady=8)
-        self.manager_combo = CTkComboBox(self.content_frame, width=250)
-        self.manager_combo.grid(row=row, column=1, sticky="w", padx=10)
-        
-        # Ngày vào làm
-        row += 1
-        CTkLabel(self.content_frame, text="Ngày vào làm:").grid(row=row, column=0, 
-                sticky="e", padx=10, pady=8)
-        self.start_date_entry = CTkEntry(self.content_frame, width=250, 
-                placeholder_text="YYYY-MM-DD")
-        self.start_date_entry.grid(row=row, column=1, sticky="w", padx=10)
-        
-        # === Ảnh đại diện ===
-        row += 1
-        CTkLabel(self.content_frame, text="ẢNH ĐẠI DIỆN", 
-                font=("Arial", 14, "bold")).grid(row=row, column=0, columnspan=2, 
-                sticky="w", pady=(20, 10))
-        
-        # Image frame
-        row += 1
-        self.image_frame = CTkFrame(self.content_frame)
-        self.image_frame.grid(row=row, column=0, columnspan=2, sticky="w", padx=10, pady=8)
-        
-        # Image preview
-        self.image_path = StringVar()
-        self.image_label = CTkLabel(self.image_frame, text="[Ảnh đại diện]", width=150, height=150)
-        self.image_label.pack(side="left", padx=10)
-        
-        # Image buttons
-        self.image_buttons = CTkFrame(self.image_frame, fg_color="transparent")
-        self.image_buttons.pack(side="left", padx=10)
-        
-        self.browse_button = CTkButton(self.image_buttons, text="Chọn ảnh", 
-                command=self.browseImage)
-        self.browse_button.pack(pady=5)
-        
-        self.image_path_label = CTkLabel(self.image_buttons, text="Chưa chọn ảnh", wraplength=200)
-        self.image_path_label.pack(pady=5)
-        
-        # === Buttons ===
-        self.button_frame = CTkFrame(self.main_frame, fg_color="transparent")
-        self.button_frame.pack(fill="x", pady=15)
-        
-        # Tùy chọn nút dựa trên chế độ
-        if self.mode == "view":
-            self.close_button = CTkButton(self.button_frame, text="Đóng", 
-                    command=self.destroy, width=100)
-            self.close_button.pack(side="right", padx=10)
-        else:
-            self.save_button = CTkButton(self.button_frame, text="Lưu", 
-                    command=self.saveEmployee, width=100)
-            self.save_button.pack(side="right", padx=10)
-            self.cancel_button = CTkButton(self.button_frame, text="Hủy", 
-                    command=self.destroy, width=100)
-            self.cancel_button.pack(side="right", padx=10)
-    
-    def browseImage(self):
-        """Mở dialog chọn file ảnh"""
-        file_types = [("Image files", "*.jpg *.jpeg *.png *.gif")]
-        file_path = filedialog.askopenfilename(title="Chọn ảnh nhân viên", filetypes=file_types)
-        
-        if file_path:
-            self.image_path.set(file_path)
-            self.image_path_label.configure(text=os.path.basename(file_path))
-            # TODO: Hiển thị ảnh preview
+        self.startDateEntry = DateEntry(self.fromLayout, height=30, date_pattern='yyyy-MM-dd', state="readonly")
+        self.startDateEntry.grid(row=9, column=4, rowspan=1, columnspan=7, padx=5, pady=2, sticky="ew")
+
+        self.confirmBtn = CTkButton(self.fromLayout, text="Xác nhận", fg_color="transparent", 
+            border_color="black", border_width=2, hover_color="cyan", text_color="black", command=self.saveEmployee)
+        self.confirmBtn.grid(row=10, column=6, rowspan=1, columnspan=6, padx=20, pady=20, sticky="nsew")
+
+        self.closeDialogBtn = CTkButton(self.fromLayout, text="Đóng", fg_color="transparent", 
+            border_color="black", border_width=2, hover_color="cyan", text_color="black", command=self.destroy)
+        self.closeDialogBtn.grid(row=10, column=0, rowspan=1, columnspan=6, padx=20, pady=20, sticky="nsew")
     
     def loadEmployeeData(self):
-        """Load dữ liệu nhân viên vào form"""
         if not self.employee:
             return
         
-        # Thông tin cá nhân
-        self.name_entry.insert(0, self.employee.ho_ten_nhan_vien or "")
-        self.birthdate_entry.insert(0, str(self.employee.ngay_sinh) if self.employee.ngay_sinh else "")
-        self.gender_var.set(self.employee.gioi_tinh or "nam")
-        self.phone_entry.insert(0, self.employee.so_dien_thoai or "")
-        self.address_entry.insert(0, self.employee.dia_chi or "")
+        print (self.employee.gioi_tinh)
+        self.nameEntry.insert(0, self.employee.ho_ten_nhan_vien or "")
+        self.bodEntry.set_date(convertToDate(self.employee.ngay_sinh))
+        self.genderValue.set(self.employee.gioi_tinh or "nam")
+        self.phoneEntry.insert(0, self.employee.so_dien_thoai or "")
+        self.addressEntry.insert(0, self.employee.dia_chi or "")
         
-        # Thông tin công việc
-        # TODO: Load dữ liệu chức vụ và manager vào combobox
+        managers = convertDataComboBox(self.department, "ten_phong", "ma_truong_phong")
+        thismanager = [key for key, value in managers.items() if value == self.employee.ma_ngql]
+        self.managerEntry.set(thismanager[0])
+        positions = convertDataComboBox(self.position, "ten_chuc_vu", "ma_chuc_vu")
+        thispos = [key for key, value in positions.items() if value == self.employee.ma_chuc_vu]
+        self.positionEntry.set(thispos[0])
+        self.startDateEntry.set_date(convertToDate(self.employee.ngay_vao_lam))
         
-        self.start_date_entry.insert(0, str(self.employee.ngay_vao_lam) if self.employee.ngay_vao_lam else "")
-        
-        # Ảnh đại diện
-        if self.employee.url_image:
-            self.image_path.set(self.employee.url_image)
-            self.image_path_label.configure(text=os.path.basename(self.employee.url_image))
-            # TODO: Hiển thị ảnh preview
     
     def disableControls(self):
-        """Disable tất cả input controls trong chế độ xem"""
-        for widget in [self.name_entry, self.birthdate_entry, self.phone_entry, 
-                      self.address_entry, self.position_combo, self.manager_combo,
-                      self.start_date_entry, self.browse_button]:
-            widget.configure(state="disabled")
-        
-        self.male_radio.configure(state="disabled") 
-        self.female_radio.configure(state="disabled")
+        self.nameEntry.configure(state="disabled", fg_color="white", text_color="black", border_width=0)
+        self.bodEntry.configure(state="disabled")
+        self.phoneEntry.configure(state="disabled", fg_color="white", text_color="black", border_width=0)
+        self.addressEntry.configure(state="disabled", fg_color="white", text_color="black", border_width=0)
+        self.managerEntry.configure(state="disabled", fg_color="white", text_color="black", border_width=0)
+        self.positionEntry.configure(state="disabled", fg_color="white", text_color="black", border_width=0)
+        self.startDateEntry.configure(state="disabled")
+        self.maleOption.configure(state="disabled")
+        self.femaleOption.configure(state="disabled")
+        self.confirmBtn.configure(state="disabled", fg_color="grey")
     
     def saveEmployee(self):
-        """Lưu thông tin nhân viên"""
         if not self.validateForm():
             return
             
         try:
-            # Thu thập dữ liệu từ form
-            employee_data = {
-                'ho_ten_nhan_vien': self.name_entry.get().strip(),
-                'ngay_sinh': self.birthdate_entry.get().strip(),
-                'gioi_tinh': self.gender_var.get(),
-                'so_dien_thoai': self.phone_entry.get().strip(),
-                'dia_chi': self.address_entry.get().strip(),
-                'ma_ngql': None,  # TODO: Xử lý lấy ID từ combobox
-                'ma_chuc_vu': None,  # TODO: Xử lý lấy ID từ combobox
-                'ngay_vao_lam': self.start_date_entry.get().strip(),
-                'url_image': self.image_path.get() or 'faceImg\\default.jpg',
-                'trang_thai': 'active'
+            managers = convertDataComboBox(self.department, "ten_phong", "ma_truong_phong")
+            managerName = self.managerEntry.get()
+            managerID = managers.get(managerName)
+
+            positions = convertDataComboBox(self.position, "ten_chuc_vu", "ma_chuc_vu")
+            positionName = self.positionEntry.get()
+            positionID = positions.get(positionName)
+
+            employeeData = {
+                'ho_ten_nhan_vien': self.nameEntry.get().strip(),
+                'ngay_sinh': self.bodEntry.get().strip(),
+                'gioi_tinh': self.genderValue.get(),
+                'so_dien_thoai': self.phoneEntry.get().strip(),
+                'dia_chi': self.addressEntry.get().strip(),
+                'ma_ngql': managerID, 
+                'ma_chuc_vu': positionID, 
+                'ngay_vao_lam': self.startDateEntry.get().strip(),
+                'url_image': ''
             }
             
-            # Thực hiện thêm hoặc cập nhật
             if self.mode == "add":
-                result = self.controller.create(employee_data)
+                self.controller.create(employeeData)
                 message = "Thêm nhân viên thành công!"
-            else:  # edit mode
-                result = self.controller.update(self.employee.ma_nhan_vien, employee_data)
+            else:
+                result = self.controller.update(self.employee.ma_nhan_vien, employeeData)
                 message = "Cập nhật thông tin nhân viên thành công!"
                 
             # Hiển thị thông báo thành công
@@ -282,9 +222,7 @@ class EmployeeDialog(CTkToplevel):
             # Gọi callback nếu có
             if self.callback:
                 self.callback()
-                
-            # Đóng dialog
-            self.destroy()
+            self.after_idle(self.destroy)
                 
         except Exception as e:
             CTkMessagebox(title="Lỗi", message=f"Không thể lưu dữ liệu: {str(e)}", icon="cancel")
@@ -292,29 +230,27 @@ class EmployeeDialog(CTkToplevel):
     def validateForm(self):
         """Kiểm tra dữ liệu hợp lệ trước khi lưu"""
         # Họ tên
-        if not self.name_entry.get().strip():
+        if not self.nameEntry.get().strip():
             CTkMessagebox(title="Lỗi", message="Họ tên không được để trống!", icon="cancel")
-            self.name_entry.focus_set()
+            self.nameEntry.focus_set()
             return False
             
         # Số điện thoại
-        phone = self.phone_entry.get().strip()
+        phone = self.phoneEntry.get().strip()
         if not phone:
             CTkMessagebox(title="Lỗi", message="Số điện thoại không được để trống!", icon="cancel")
-            self.phone_entry.focus_set()
+            self.phoneEntry.focus_set()
             return False
             
         if not phone.isdigit() or len(phone) != 10 or not phone.startswith('0'):
             CTkMessagebox(title="Lỗi", message="Số điện thoại phải có 10 chữ số và bắt đầu bằng số 0!", icon="cancel")
-            self.phone_entry.focus_set()
+            self.phoneEntry.focus_set()
             return False
             
         # Địa chỉ
-        if not self.address_entry.get().strip():
+        if not self.addressEntry.get().strip():
             CTkMessagebox(title="Lỗi", message="Địa chỉ không được để trống!", icon="cancel")
-            self.address_entry.focus_set() 
+            self.addressEntry.focus_set()
             return False
-            
-        # TODO: Kiểm tra định dạng ngày tháng
-        
         return True
+    

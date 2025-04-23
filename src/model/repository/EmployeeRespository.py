@@ -12,7 +12,13 @@ class EmployeeRepository:
     def findAll(self):
         connection = self.getConnection()
         cursor = connection.cursor()
-        query = """SELECT ma_nhan_vien, ma_ngql, ma_chuc_vu, ho_ten_nhan_vien, ngay_sinh, so_dien_thoai, dia_chi, gioi_tinh, ngay_vao_lam, url_image FROM nhan_vien"""
+        query = """
+            SELECT
+                ma_nhan_vien, ma_ngql, ma_chuc_vu,
+                ho_ten_nhan_vien, ngay_sinh, so_dien_thoai,
+                dia_chi, gioi_tinh, ngay_vao_lam, url_image
+            FROM nhan_vien
+        """
 
         employees = []
 
@@ -47,7 +53,14 @@ class EmployeeRepository:
     def findByID(self, ma_nhan_vien):
         connection = self.getConnection()
         cursor = connection.cursor()
-        query = """SELECT * FROM nhan_vien WHERE ma_nhan_vien = %s"""
+        query = """
+                SELECT
+                    ma_nhan_vien, ma_ngql, ma_chuc_vu,
+                    ho_ten_nhan_vien, ngay_sinh, so_dien_thoai,
+                    dia_chi, gioi_tinh, ngay_vao_lam, url_image
+                FROM nhan_vien
+                WHERE ma_nhan_vien LIKE %s
+            """
         employee = None
 
         try:
