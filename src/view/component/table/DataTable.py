@@ -1,5 +1,6 @@
 from customtkinter import *
 # from src.utils.viewExtention import configFrame
+from src.view.colorVariable import *
 
 class DataTable(CTkScrollableFrame):
     def __init__(self, master, columns, rowSelectCallback=None, **kwargs):
@@ -58,7 +59,7 @@ class DataTable(CTkScrollableFrame):
     def onclickRow(self, row, idx):
         self.selectedRow = row
         for i, frame in enumerate(self.rowValue.winfo_children()):
-            frame.configure(fg_color="#7D6CCB") if i == idx else frame.configure(fg_color='transparent')
+            frame.configure(fg_color=Ocean_Blue) if i == idx else frame.configure(fg_color='transparent')
         
         if self.rowSelectCallback:
             self.rowSelectCallback(row)
