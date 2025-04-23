@@ -76,7 +76,7 @@ INSERT INTO hop_dong (ma_nhan_vien, thoi_han, ngay_ky, muc_luong) VALUES
 (5, '1 năm', '2024-01-10', 12500000.00);
 
 INSERT INTO cham_cong (ma_nhan_vien, ngay_cham_cong, gio_vao, gio_ra, img_checkin, img_checkout) VALUES
-(1, '2025-04-13', '08:00:00', '17:00:00', 'images/cc1.jpg', ''),
+(1, '2025-04-13', '08:00:00', '17:00:00', 'scr/../Resources/attendanceImg/2025-04-22/1_00-48-32.jpg', 'scr/../Resources/attendanceImg/2025-04-22/1_00-48-32.jpg'),
 (1, '2025-04-14', '08:00:00', '17:00:00', 'images/cc1.jpg', ''),
 (1, '2025-04-15', '08:00:00', '17:00:00', 'images/cc1.jpg', ''),
 (1, '2025-04-16', '08:00:00', '17:00:00', 'images/cc1.jpg', ''),
