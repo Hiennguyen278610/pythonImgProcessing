@@ -1,6 +1,6 @@
 from customtkinter import CTkFrame
 from src.view.component.EntityFrame import EntityFrame
-from CTkMessagebox import CTkMessagebox
+from CTkMessagebox import *
 from src.utils.messageUtil import show_info, show_warning, show_error
 from src.view.colorVariable import * 
 
@@ -68,11 +68,9 @@ class BasePanel(CTkFrame):
             option_1="Yes",
             option_2="No"
         )
-        
         if confirm.get() == "Yes":
             try:
-                # Gọi hàm xóa trong controller
-                id_field = self.getIDField()  # Lớp con cần override
+                id_field = self.getIDField()
                 if hasattr(selected, id_field):
                     self.controller.delete(getattr(selected, id_field))
                     self.entityFrame.loadData()

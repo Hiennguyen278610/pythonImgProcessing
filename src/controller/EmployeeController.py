@@ -20,4 +20,8 @@ class EmployeeController:
         return self.service.updateEmployee(employee_id, employee_data)
     
     def delete(self, employee_id):
-        return self.service.deleteEmployee(employee_id)
+        try:
+            result = self.service.deleteEmployee(employee_id)
+            return result
+        except Exception as e:
+            raise Exception(f"Không thể xóa nhân viên: {str(e)}")
