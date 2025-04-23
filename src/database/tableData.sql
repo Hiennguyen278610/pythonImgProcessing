@@ -46,6 +46,14 @@ CREATE TABLE chuc_vu (
     ten_chuc_vu VARCHAR(50) NOT NULL
 );
 
+CREATE TABLE tai_khoan (
+    ma_nhan_vien INT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    FOREIGN KEY (ma_nhan_vien) REFERENCES nhan_vien(ma_nhan_vien)
+);
+
+
 INSERT INTO phong (ma_truong_phong, ten_phong) VALUES
 (1, 'Phòng Nhân sự'),
 (2, 'Phòng Kỹ thuật'),
@@ -86,6 +94,9 @@ INSERT INTO cham_cong (ma_nhan_vien, ngay_cham_cong, gio_vao, gio_ra, img_checki
 (4, '2025-04-13', '07:55:00', '16:50:00', 'images/cc4.jpg', ''),
 (5, '2025-04-13', '08:10:00', '17:20:00', 'images/cc5.jpg', '');
 
+
+INSERT INTO tai_khoan (ma_nhan_vien, username, password) VALUES
+(1, 'abc', 'admin');
 alter table chuc_vu
     add constraint foreign key (ma_phong) references phong(ma_phong);
 

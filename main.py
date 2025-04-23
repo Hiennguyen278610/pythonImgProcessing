@@ -92,5 +92,6 @@ def mainFrame():
     
     return mainPanel
 
-mainPanel = mainFrame()
-mainPanel.mainloop()
+if __name__ == "__main__":
+    mainPanel = mainFrame()
+    mainPanel.mainloop()
