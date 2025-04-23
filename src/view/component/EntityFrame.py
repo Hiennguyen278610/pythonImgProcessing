@@ -17,7 +17,7 @@ class EntityFrame(CTkFrame):
             self.grid_rowconfigure(i, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
-        self.header = CTkFrame(self, fg_color=bgClr, **configFrame())
+        self.header = CTkFrame(self, fg_color=Midnight_Navy, **configFrame())
         self.header.grid(row=0, column=0, sticky="nsew", rowspan=2, padx=10)
         self.header.grid_propagate(False)
         for i in range(2):
@@ -44,7 +44,7 @@ class EntityFrame(CTkFrame):
         self.crudTool.grid(row=1, column=0, sticky="nsew", padx=2, pady=2)
 
         # Content area with DataTable
-        self.content = CTkFrame(self, fg_color="white", **configFrame(10))
+        self.content = CTkFrame(self, fg_color=Midnight_Navy, **configFrame(10))
         self.content.grid(row=2, column=0, sticky="nsew", rowspan=13, padx=10, pady=10)
         self.content.grid_propagate(False)
         self.content.grid_rowconfigure(0, weight=1)
