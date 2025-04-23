@@ -17,7 +17,8 @@ class AttendanceService:
     def load_known_faces(self):
         employees = self.employee_repo.findAll()
         for employee in employees:
-            path = os.path.join("src/../Resources", employee.url_image)
+            path = os.path.join("src\\..\\Resources\\faceImg", employee.url_image)
+            path = os.path.normpath(path)
             image = face_recognition.load_image_file(path)
             encoding = face_recognition.face_encodings(image)
             if encoding:
@@ -86,10 +87,11 @@ class AttendanceService:
     def save_attendance_img(self, frame, ma_nhan_vien):
         today = datetime.now().strftime("%Y-%m-%d")
         time_now = datetime.now().strftime("%H-%M-%S")
-        folder_path = os.path.join("scr/../Resources", "attendanceImg", today)
+        folder_path = os.path.join("scr\\..\\Resources", "attendanceImg", today)
         os.makedirs(folder_path, exist_ok=True)
         filename = f"{ma_nhan_vien}_{time_now}.jpg"
         file_path = os.path.join(folder_path, filename)
+        file_path = os.path.normpath(file_path)
         cv2.imwrite(file_path, frame)
         return file_path
 

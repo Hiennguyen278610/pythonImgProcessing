@@ -45,6 +45,14 @@ CREATE TABLE chuc_vu (
     ten_chuc_vu VARCHAR(50) NOT NULL
 );
 
+CREATE TABLE tai_khoan (
+    ma_nhan_vien INT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    FOREIGN KEY (ma_nhan_vien) REFERENCES nhan_vien(ma_nhan_vien)
+);
+
+
 INSERT INTO phong (ma_truong_phong, ten_phong) VALUES
 (1, 'Phòng Nhân sự'),
 (2, 'Phòng Kỹ thuật'),
@@ -75,7 +83,7 @@ INSERT INTO hop_dong (ma_nhan_vien, thoi_han, ngay_ky, muc_luong) VALUES
 (5, '1 năm', '2024-01-10', 12500000.00);
 
 INSERT INTO cham_cong (ma_nhan_vien, ngay_cham_cong, gio_vao, gio_ra, img_checkin, img_checkout) VALUES
-(1, '2025-04-13', '08:00:00', '17:00:00', 'images/cc1.jpg', ''),
+(1, '2025-04-13', '08:00:00', '17:00:00', 'scr/../Resources/attendanceImg/2025-04-22/1_00-48-32.jpg', 'scr/../Resources/attendanceImg/2025-04-22/1_00-48-32.jpg'),
 (1, '2025-04-14', '08:00:00', '17:00:00', 'images/cc1.jpg', ''),
 (1, '2025-04-15', '08:00:00', '17:00:00', 'images/cc1.jpg', ''),
 (1, '2025-04-16', '08:00:00', '17:00:00', 'images/cc1.jpg', ''),
@@ -85,6 +93,9 @@ INSERT INTO cham_cong (ma_nhan_vien, ngay_cham_cong, gio_vao, gio_ra, img_checki
 (4, '2025-04-13', '07:55:00', '16:50:00', 'images/cc4.jpg', ''),
 (5, '2025-04-13', '08:10:00', '17:20:00', 'images/cc5.jpg', '');
 
+
+INSERT INTO tai_khoan (ma_nhan_vien, username, password) VALUES
+(1, 'abc', 'admin');
 alter table chuc_vu
     add constraint foreign key (ma_phong) references phong(ma_phong);
 

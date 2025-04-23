@@ -22,7 +22,7 @@ class BasePanel(CTkFrame):
             columns=columns,
             controller=controller,
             searchFields=searchFields,
-            fg_color=bgClr,
+            fg_color=Midnight_Navy,
             corner_radius=0
         )
         self.entityFrame.grid(row=0, column=0, sticky="nsew", padx=0, pady=0)

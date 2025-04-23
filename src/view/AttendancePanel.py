@@ -9,58 +9,62 @@ from src.controller.PositionController import PositionController
 from src.utils.viewExtention import getCenterInit
 from src.controller.AttendanceController import AttendanceController
 from src.view.component.toolbar.FilterToolbar import FilterToolbar
+from src.view.dialog.checkAttendanceDialog import CheckAttendanceDialog
 
 
 class AttendancePanel(customtkinter.CTkFrame):
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
+        self.configure(fg_color="blue")
         self.controllerEmpoyee = EmployeeController()
         self.controllerPosition = PositionController()
         self.controllerAttendance = AttendanceController()
         self.controllerDepartment = DepartmentController()
+        self.master = master
 
         self.employeeList = self.controllerEmpoyee.getAll()
 
-        self.leftFrame = customtkinter.CTkFrame(self, fg_color="blue", width=532, height=492)
-        self.rightFrame = customtkinter.CTkFrame(self, fg_color="blue", width=650, height=492)
+        self.leftFrame = customtkinter.CTkFrame(self, fg_color="blue", width=400, height=710)
+        self.rightFrame = customtkinter.CTkFrame(self, fg_color="blue", width=580, height=710, corner_radius=8)
         self.searchToolbar = FilterToolbar(
-            self.leftFrame,
+            self,
             searchFields=[
                 {"label": "Mã nhân viên", "field": "ma_nhan_vien"},
-                {"label": "Tên nhân viên", "field": "ho_ten_nhan_vien"},
-                {"label": "Tên phòng", "field": "ten_phong"}
+                {"label": "Tên nhân viên", "field": "ho_ten_nhan_vien"}
             ],
             searchCallback=self.search_employees,
             resetCallback=self.reset_search,
-            width=400,
-            height=40,
             fg_color="white",
             corner_radius=8
         )
+        # self.filterTool = FilterToolbar(self.,searchFields=search_fields,searchCallback=self.onSearch,resetCallback=self.onReset)
         self.searchToolbar.place(x=10, y=10)
 
         self.titleEmployee = customtkinter.CTkLabel(self.rightFrame, fg_color="white", text="", text_color="black",
-                                                    width=630, height=40, corner_radius=8)
-        self.titleEmployee.place(x=10, y=10)
-        self.canlendar = customtkinter.CTkFrame(self.rightFrame, fg_color="white", width=630, height=422)
-        self.canlendar.place(x=10, y=60)
-        self.headerCalendar = customtkinter.CTkFrame(self.canlendar, fg_color="white", width=610, height=40)
+                                                    width=560, height=40, corner_radius=8)
+        self.titleEmployee.place(x=10, y=60)
+        self.canlendar = customtkinter.CTkFrame(self.rightFrame, fg_color="white", width=560, height=590)
+        self.canlendar.place(x=10, y=110)
+        self.headerCalendar = customtkinter.CTkFrame(self.canlendar, fg_color="white", width=540, height=40)
         self.headerCalendar.place(x=10, y=0)
-        self.bodyCalendar = customtkinter.CTkFrame(self.canlendar, fg_color="white", width=610, height=380)
+        self.bodyCalendar = customtkinter.CTkFrame(self.canlendar, fg_color="white", width=540, height=540)
         self.bodyCalendar.place(x=10, y=40)
 
         self.leftFrame.place(x=0, y=0)
-        self.rightFrame.place(x=542, y=0)
+        self.rightFrame.place(x=400, y=0)
+
+        self.checkAttendance = None
+        self.currentEmployee = None
 
         self.initList()
 
     def initList(self):
-        headers = ["Mã nhân viên", "Tên", "Phòng"]
-        headerText = f"{headers[0]:<40} {headers[1]:<40} {headers[2]:>30}"
-        headerLabel = customtkinter.CTkLabel(self.leftFrame, text=headerText, fg_color="white", text_color="black", width=512, height=40, corner_radius=8)
+        headers = ["Mã nhân viên", "Tên"]
+        headerText = f"{headers[0]:<40} {headers[1]:<40}"
+        headerLabel = customtkinter.CTkLabel(self.leftFrame, text=headerText, fg_color="white", text_color="black", width=380, height=40, corner_radius=8)
         headerLabel.place(x=10, y=60)
 
-        self.scrollFrame = customtkinter.CTkScrollableFrame(self.leftFrame, width=492, height=372)
+        self.scrollFrame = customtkinter.CTkScrollableFrame(self.leftFrame, width=360, height=580)
         self.scrollFrame.place(x=10, y=110)
 
         self.populate_employee_list(self.employeeList)
@@ -74,17 +78,19 @@ class AttendancePanel(customtkinter.CTkFrame):
             department = self.controllerDepartment.getById(
                 self.controllerPosition.getById(employee.ma_chuc_vu).ma_phong
             )
-            text = f"{employee.ma_nhan_vien:>5} {employee.ho_ten_nhan_vien:^40} {department.ten_phong:^20}"
+            text = f"{employee.ma_nhan_vien:>5} {employee.ho_ten_nhan_vien:^40}"
             button = customtkinter.CTkButton(
                 self.scrollFrame,
                 text=text,
                 fg_color="white",
                 text_color="black",
-                width=492,
+                width=380,
                 height=40,
                 corner_radius=0,
                 font=("Consolas", 13),
-                command=lambda emp=employee: self.initCalendar(emp)
+                command=lambda emp=employee: self.initCalendar(emp),
+                border_width=1,
+                border_color="black",
             )
             button.pack()
 
@@ -125,14 +131,15 @@ class AttendancePanel(customtkinter.CTkFrame):
     def initCalendar(self, employee):
         self.titleEmployee.configure(text=employee.ho_ten_nhan_vien)
         self.canlendar.destroy()
-        self.canlendar = customtkinter.CTkFrame(self.rightFrame, fg_color="white", width=630, height=422)
-        self.canlendar.place(x=10, y=60)
-        self.headerCalendar = customtkinter.CTkFrame(self.canlendar, fg_color="white", width=610, height=40)
+        self.canlendar = customtkinter.CTkFrame(self.rightFrame, fg_color="white", width=560, height=590)
+        self.canlendar.place(x=10, y=110)
+        self.headerCalendar = customtkinter.CTkFrame(self.canlendar, fg_color="white", width=540, height=40)
         self.headerCalendar.place(x=10, y=0)
-        self.bodyCalendar = customtkinter.CTkFrame(self.canlendar, fg_color="white", width=610, height=380)
+        self.bodyCalendar = customtkinter.CTkFrame(self.canlendar, fg_color="white", width=540, height=540)
         self.bodyCalendar.place(x=10, y=40)
         self.listAttendace = self.controllerAttendance.getAttendanceOfEmployee(employee)
         self.listDay = [day.ngay_cham_cong for day in self.listAttendace]
+        self.currentEmployee = employee
         years = [str(year) for year in self.controllerAttendance.getAttendanceYear(employee)]
         if years:
             self.comboBoxMonth = customtkinter.CTkComboBox(self.headerCalendar, fg_color="white", text_color="black", dropdown_text_color="black", dropdown_fg_color="white", values=["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"], width=120, height=30, command=self.onMonthOrYearChange)
@@ -143,7 +150,7 @@ class AttendancePanel(customtkinter.CTkFrame):
 
     def onMonthOrYearChange(self, _=None):
         self.bodyCalendar.destroy()
-        self.bodyCalendar = customtkinter.CTkFrame(self.canlendar, fg_color="white", width=610, height=380)
+        self.bodyCalendar = customtkinter.CTkFrame(self.canlendar, fg_color="white", width=610, height=540)
         self.bodyCalendar.place(x=10, y=40)
         year = int(self.comboBoxYear.get())
         month = int(self.comboBoxMonth.get())
@@ -157,13 +164,15 @@ class AttendancePanel(customtkinter.CTkFrame):
         y = 10
         col = first_day_weekday
         row = 0
-        width = 80
-        height= 60
+        width = 70
+        height= 70
         for day in range(num_days):
             weekday_name = weekdays[col]
             label_text = f"{day + 1} {weekday_name}"
-            day_label = customtkinter.CTkLabel(self.bodyCalendar, text=label_text, width=width, height=height, fg_color="red", text_color="black")
             da = datetime.date(year, month, day + 1)
+            day_label = customtkinter.CTkButton(self.bodyCalendar, text=label_text, width=width, height=height,
+                                                fg_color="red", text_color="black", corner_radius=0,
+                                                command=lambda d = da: self.openCheckAttendanceDialog(d, self.currentEmployee))
             if da in ld:
                 index = ld.index(da)
                 if self.listAttendace[index].gio_ra:
@@ -176,16 +185,14 @@ class AttendancePanel(customtkinter.CTkFrame):
                 col = 0
                 row += 1
 
-
-class App(customtkinter.CTk):
-    def __init__(self):
-        super().__init__()
-        w, h, x, y = getCenterInit(self, 1192, 492)
-        self.geometry(f"{w}x{h}+{x}+{y}")
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_columnconfigure(0, weight=1)
-        self.my_frame = AttendancePanel(master=self, width=1192, height=492)
-        self.my_frame.grid(row=0, column=0,sticky="nsew")
-
-app = App()
-app.mainloop()
+    def openCheckAttendanceDialog(self, day, employee):
+        attendanced = None
+        for att in self.listAttendace:
+            if att.ngay_cham_cong == day:
+                attendanced = att
+                break
+        if self.checkAttendance is not None:
+            self.checkAttendance.destroy()
+        self.checkAttendance = CheckAttendanceDialog(self, attendanced, employee, day)
+        self.checkAttendance.grab_set()
+        self.checkAttendance.focus()
