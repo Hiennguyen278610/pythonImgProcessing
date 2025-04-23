@@ -15,7 +15,7 @@ class FilterToolbar(CTkFrame):
                  searchCallback=None,
                  resetCallback=None,
                  **kwargs):
-        super().__init__(master, fg_color="white", **kwargs)
+        super().__init__(master, **kwargs)
 
         self.searchCallback = searchCallback
         self.resetCallback = resetCallback

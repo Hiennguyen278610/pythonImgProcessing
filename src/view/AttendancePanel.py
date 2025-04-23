@@ -187,5 +187,5 @@ class App(customtkinter.CTk):
         self.my_frame = AttendancePanel(master=self, width=1192, height=492)
         self.my_frame.grid(row=0, column=0,sticky="nsew")
 
-app = App()
-app.mainloop()
+# app = App()
+# app.mainloop()
