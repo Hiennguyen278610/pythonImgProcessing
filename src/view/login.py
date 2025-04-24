@@ -179,4 +179,4 @@ def loginFrame():
     resizeImg(left, imgLabel, imgPath)
     return loginPanel
 
-loginFrame().mainloop()
+# loginFrame().mainloop()
