@@ -45,7 +45,8 @@ class AttendanceService:
                 known_encodings, known_ids = encodeWithId
         except:
             known_encodings, known_ids = [], []
-        path = os.path.join("../../../Resources/", new_employee.urlImage)
+        path = os.path.join("..\\..\\..\\Resources", new_employee.urlImage)
+        path = os.path.normpath(path)
         if not os.path.exists(path):
             return
         image = face_recognition.load_image_file(path)
