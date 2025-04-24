@@ -17,7 +17,6 @@ class EmployeeService:
     def createEmployee(self, employeeData):
         employee = Employee(
             ma_nhan_vien=None,  # ID sẽ được cơ sở dữ liệu tự sinh
-            ma_phong=employeeData.get('ma_phong'),
             ma_ngql=employeeData.get('ma_ngql'),
             ma_chuc_vu=employeeData.get('ma_chuc_vu'),
             ho_ten_nhan_vien=employeeData.get('ho_ten_nhan_vien'),
@@ -38,9 +37,6 @@ class EmployeeService:
         if not existEmployee:
             raise ValueError(f"Nhân viên có mã {ma_nhan_vien} không tồn tại.")
         
-        # Cập nhật thông tin nhân viên
-        if 'ma_phong' in employeeData:
-            existEmployee.ma_phong = employeeData.get('ma_phong')
         if 'ma_ngql' in employeeData:
             existEmployee.ma_ngql = employeeData.get('ma_ngql')
         if 'ma_chuc_vu' in employeeData:
