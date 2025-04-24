@@ -14,8 +14,20 @@ textClr = "#FFFFFF"
 borderClr = "#000000"
 
 
-# class AttendanceListPanel():
+class AttendanceListPanel(ctk.CTkFrame):
+    def __init__(self, parent):
+        super().__init__(parent, fg_color=bgClr)
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
 
+        label = ctk.CTkLabel(
+            self,
+            text="Danh sách chấm công\n(Dữ liệu giả lập)\n" +
+                 f"Ngày: {datetime.now().strftime('%d/%m/%Y')}",
+            font=("San Serif", 18, "bold"),
+            text_color=textClr
+        )
+        label.grid(row=0, column=0, padx=20, pady=20, sticky="nsew")
 
 
 class HomeFrame(ctk.CTkFrame):
@@ -102,7 +114,19 @@ class HomeFrame(ctk.CTkFrame):
                 message=f"Không thể mở giao diện đăng nhập: {str(e)}"
             )
 
-    # def show_attendance_list(self):
+    def show_attendance_list(self):
+        """Hiển thị danh sách chấm công"""
+        try:
+            if self.attendance_panel:
+                self.attendance_panel.destroy()
+            self.attendance_panel = AttendanceListPanel(self)
+            self.attendance_panel.grid(row=2, column=0, padx=20, pady=20, sticky="nsew")
+        except Exception as e:
+            CTkMessagebox(
+                title="Lỗi",
+                message=f"Không thể hiển thị danh sách chấm công: {str(e)}"
+            )
+
 
 if __name__ == "__main__":
     root = ctk.CTk()
