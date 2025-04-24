@@ -209,6 +209,7 @@ class EmployeeDialog(CTkToplevel):
                 'url_image': ''
             }
 
+
             if self.mode == "add":
                 self.controller.create(employeeData)
                 message = "Thêm nhân viên thành công!"
