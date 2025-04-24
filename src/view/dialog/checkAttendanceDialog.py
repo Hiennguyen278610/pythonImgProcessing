@@ -2,14 +2,18 @@ import customtkinter
 from pathlib import Path
 from PIL import Image
 from customtkinter import CTkImage
+
+from src.view.colorVariable import Ocean_Blue
+
+
 class CheckAttendanceDialog(customtkinter.CTkToplevel):
     def __init__(self, parent, attendanced, employee, day):
         customtkinter.CTkToplevel.__init__(self, parent)
         self.geometry("1000x600")
-        self.configure(fg_color="blue")
+        self.configure(fg_color=Ocean_Blue)
         self.header = customtkinter.CTkFrame(self, height=50, fg_color="white")
         self.header.pack(side="top", fill="x", expand="true", pady=(0, 10), padx=10)
-        self.body = customtkinter.CTkFrame(self, height=540, fg_color="blue")
+        self.body = customtkinter.CTkFrame(self, height=540, fg_color=Ocean_Blue)
         self.body.pack(side="bottom", fill="both", expand="true")
 
         self.attendanced = attendanced
