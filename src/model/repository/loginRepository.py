@@ -29,7 +29,6 @@ class LoginRepository:
                 WHERE tk.username = %s 
                   AND tk.password = %s
                   AND cv.ma_chuc_vu = 1
-                  AND nv.trang_thai = 'active'
             """
             cursor.execute(query, (username, password))
             result = cursor.fetchone()
