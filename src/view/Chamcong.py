@@ -119,25 +119,10 @@ class HomeFrame(ctk.CTkFrame):
 
     def open_manager_login(self):
         try:
-
+            self.master.destroy()  # Đóng frame hiện tại
             login_frame = loginFrame()
-
-            self.login_window = login_frame
-            login_frame.withdraw()
-
-            login_frame.update_idletasks()
-
-            width = login_frame.winfo_width()
-            height = login_frame.winfo_height()
-
-            screen_width = login_frame.winfo_screenwidth()
-            screen_height = login_frame.winfo_screenheight()
-            x = int((screen_width - width) / 2)
-            y = int((screen_height - height) / 2)
-
-            login_frame.geometry(f"+{x}+{y}")
-
-            login_frame.deiconify()
+            # Căn giữa cửa sổ đăng nhập
+            login_frame.after(100, lambda: center_window(login_frame, 800, 600))
             login_frame.mainloop()
         except Exception as e:
             CTkMessagebox(
