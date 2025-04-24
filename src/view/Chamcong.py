@@ -14,9 +14,21 @@ textClr = "#FFFFFF"
 borderClr = "#000000"
 
 
+# Hàm để căn giữa cửa sổ
+def center_window(window, width, height):
+    """Căn giữa cửa sổ trên màn hình desktop"""
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+
+    x = int((screen_width - width) / 2)
+    y = int((screen_height - height) / 2)
+
+    window.geometry(f"{width}x{height}+{x}+{y}")
+
+
 class AttendanceListPanel(ctk.CTkFrame):
-    def __init__(self, parent):
-        super().__init__(parent, fg_color=bgClr)
+    def init(self, parent):
+        super().init(parent, fg_color=bgClr)
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
@@ -41,7 +53,6 @@ class HomeFrame(ctk.CTkFrame):
         self.grid_rowconfigure(2, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
-
         title = ctk.CTkLabel(
             self,
             text="Hệ thống chấm công",
@@ -49,7 +60,6 @@ class HomeFrame(ctk.CTkFrame):
             text_color=textClr
         )
         title.grid(row=0, column=0, padx=20, pady=(20, 10), sticky="n")
-
 
         button_frame = ctk.CTkFrame(self, fg_color=bgClr)
         button_frame.grid(row=1, column=0, padx=20, pady=20, sticky="nsew")
@@ -97,7 +107,10 @@ class HomeFrame(ctk.CTkFrame):
 
     def open_staff_camera(self):
         try:
-            FaceRecognition.App().mainloop()
+            app = FaceRecognition.App()
+            # Căn giữa cửa sổ camera chấm công
+            app.after(100, lambda: center_window(app, 800, 600))
+            app.mainloop()
         except Exception as e:
             CTkMessagebox(
                 title="Lỗi",
@@ -106,8 +119,26 @@ class HomeFrame(ctk.CTkFrame):
 
     def open_manager_login(self):
         try:
-            self.master.destroy()  # Đóng frame hiện tại
-            loginFrame().mainloop()  # Mở giao diện đăng nhập
+
+            login_frame = loginFrame()
+
+            self.login_window = login_frame
+            login_frame.withdraw()
+
+            login_frame.update_idletasks()
+
+            width = login_frame.winfo_width()
+            height = login_frame.winfo_height()
+
+            screen_width = login_frame.winfo_screenwidth()
+            screen_height = login_frame.winfo_screenheight()
+            x = int((screen_width - width) / 2)
+            y = int((screen_height - height) / 2)
+
+            login_frame.geometry(f"+{x}+{y}")
+
+            login_frame.deiconify()
+            login_frame.mainloop()
         except Exception as e:
             CTkMessagebox(
                 title="Lỗi",
@@ -115,12 +146,51 @@ class HomeFrame(ctk.CTkFrame):
             )
 
     def show_attendance_list(self):
-        """Hiển thị danh sách chấm công"""
+        """Hiển thị danh sách chấm công trong cửa sổ mới"""
         try:
-            if self.attendance_panel:
-                self.attendance_panel.destroy()
-            self.attendance_panel = AttendanceListPanel(self)
-            self.attendance_panel.grid(row=2, column=0, padx=20, pady=20, sticky="nsew")
+            attendance_window = ctk.CTkToplevel(self)
+            attendance_window.title("Danh sách chấm công")
+            attendance_window.withdraw()
+
+            container = ctk.CTkFrame(attendance_window, fg_color=bgClr)
+            container.pack(fill="both", expand=True)
+
+            header = ctk.CTkFrame(container, fg_color="#3C364C", height=40)
+            header.pack(fill="x", padx=0, pady=0)
+
+            title = ctk.CTkLabel(
+                header,
+                text="Danh sách chấm công",
+                font=("San Serif", 16, "bold"),
+                text_color=textClr,
+                anchor="w"
+            )
+            title.pack(side="left", padx=10, pady=5)
+
+            close_button = ctk.CTkButton(
+                header,
+                text="X",
+                width=30,
+                height=30,
+                fg_color=primaryClr,
+                hover_color="#8A70DB",
+                command=attendance_window.destroy
+            )
+            close_button.pack(side="right", padx=10, pady=5)
+
+            attendance_panel = AttendancePanel(container)
+            attendance_panel.pack(fill="both", expand=True, padx=0, pady=0)
+
+
+            center_window(attendance_window, 980, 710)
+
+            attendance_window.deiconify()
+            attendance_window.lift()
+            attendance_window.focus_force()
+
+
+            attendance_window.resizable(False, False)
+
         except Exception as e:
             CTkMessagebox(
                 title="Lỗi",
@@ -130,11 +200,18 @@ class HomeFrame(ctk.CTkFrame):
 
 if __name__ == "__main__":
     root = ctk.CTk()
-    root.geometry("800x600")
+    # Ẩn cửa sổ chính trước khi căn giữa
+    root.withdraw()
     root.title("Hệ thống chấm công")
     root._set_appearance_mode("dark")
 
     home_frame = HomeFrame(root)
     home_frame.pack(fill="both", expand=True)
+
+    # Căn giữa cửa sổ chính
+    center_window(root, 800, 600)
+
+    # Hiện cửa sổ sau khi căn giữa
+    root.deiconify()
 
     root.mainloop()
