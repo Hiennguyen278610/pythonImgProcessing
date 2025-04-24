@@ -3,7 +3,6 @@ from datetime import datetime
 from CTkMessagebox import CTkMessagebox
 from PIL import Image
 import os
-import main
 import FaceRecognition
 from src.service.loginService import LoginService
 from main import mainFrame
@@ -29,10 +28,17 @@ def bottomCrop(img, tempWidth, tempHeight, bias=0.7):
 
 # Scale ảnh
 def resizeImg(frame, imgLabel, imgPath):
-    w = frame.winfo_width()
-    h = frame.winfo_height()
+    try:
+        w = frame.winfo_width()
+        h = frame.winfo_height()
 
-    if w > 1 and h > 1:
+        if w <= 1 or h <= 1:
+            return
+
+        if not os.path.exists(imgPath):
+            print("File ảnh không tồn tại:", imgPath)
+            return
+
         img = Image.open(imgPath)
         ratio = w / h
         img_ratio = img.width / img.height
@@ -48,6 +54,9 @@ def resizeImg(frame, imgLabel, imgPath):
         frameId = str(frame)
         imgReferences[frameId] = CTkImage(light_image=img, size=(w, h))
         imgLabel.configure(image=imgReferences[frameId])
+    except Exception as e:
+        print("Lỗi resize ảnh:", e)
+
 
 
 # Kiểm tra trường nhập có null hay không
@@ -59,15 +68,20 @@ def checknull(entries,loginPanel,loginService):
         check, loginE = loginService.check_login(entries[0].get(),entries[1].get(),loginPanel)
         if check:
             CTkMessagebox(title="Thành công", message="Bạn đã đăng nhập thành công")
+            print("hello")
             loginPanel.destroy()
-            main.mainFrame().mainloop()
+            mainFrame().mainloop()
         else:
             CTkMessagebox(title="Thất bại", message="Sai tài khoản hoặc mật khẩu")
 
 #giao dien cammera cho thang nhan vien
 def staffPanel(loginPanel):
-    FaceRecognition.App().mainloop()
-    loginPanel.destroy()
+    try:
+        FaceRecognition.App().mainloop()
+        loginPanel.destroy()
+    except Exception as e:
+        print("Lỗi mở camera:", e)
+
 
 
 def loginFrame():
