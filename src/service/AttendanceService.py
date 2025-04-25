@@ -15,17 +15,25 @@ class AttendanceService:
         self.known_face_id = []
 
     def load_known_faces(self):
+        base_dir = os.path.dirname(os.path.abspath(__file__))  # đường dẫn tuyệt đối đến thư mục chứa file hiện tại
+        resource_dir = os.path.abspath(os.path.join(base_dir, "..", "..", "Resources", "faceImg"))
+
         employees = self.employee_repo.findAll()
         for employee in employees:
-            path = os.path.join("src\\..\\Resources\\faceImg", employee.url_image)
-            path = os.path.normpath(path)
+            path = os.path.join(resource_dir, employee.url_image)
+            if not os.path.exists(path):
+                print(f"[LỖI] Ảnh không tồn tại: {path}")
+                continue
             image = face_recognition.load_image_file(path)
             encoding = face_recognition.face_encodings(image)
             if encoding:
                 self.known_face_encodings.append(encoding[0])
                 self.known_face_id.append(employee.ma_nhan_vien)
+
         encodeWithId = [self.known_face_encodings, self.known_face_id]
-        with open("src/../Resources/EncodeFile.p", 'wb') as file:
+
+        encode_file_path = os.path.abspath(os.path.join(base_dir, "..", "..", "Resources", "EncodeFile.p"))
+        with open(encode_file_path, 'wb') as file:
             pickle.dump(encodeWithId, file)
 
     def load_file_encode(self):
