@@ -3,9 +3,22 @@ from datetime import datetime
 from CTkMessagebox import CTkMessagebox
 from PIL import Image
 import os
+from main import *
 import FaceRecognition
 from src.service.loginService import LoginService
 from main import mainFrame
+
+import customtkinter
+import calendar
+
+
+from src.controller.DepartmentController import DepartmentController
+from src.controller.EmployeeController import EmployeeController
+from src.controller.PositionController import PositionController
+from src.utils.viewExtention import getCenterInit
+from src.controller.AttendanceController import AttendanceController
+from src.view.component.toolbar.FilterToolbar import FilterToolbar
+from src.view.dialog.checkAttendanceDialog import CheckAttendanceDialog
 
 # Biến màu tối
 primaryClr = "#6D54B5"
@@ -28,17 +41,13 @@ def bottomCrop(img, tempWidth, tempHeight, bias=0.7):
 
 # Scale ảnh
 def resizeImg(frame, imgLabel, imgPath):
-    try:
-        w = frame.winfo_width()
-        h = frame.winfo_height()
+    if not frame.winfo_exists() or not imgLabel.winfo_exists():
+        return  # tránh lỗi khi widget đã bị huỷ
 
-        if w <= 1 or h <= 1:
-            return
+    w = frame.winfo_width()
+    h = frame.winfo_height()
 
-        if not os.path.exists(imgPath):
-            print("File ảnh không tồn tại:", imgPath)
-            return
-
+    if w > 1 and h > 1:
         img = Image.open(imgPath)
         ratio = w / h
         img_ratio = img.width / img.height
@@ -54,10 +63,6 @@ def resizeImg(frame, imgLabel, imgPath):
         frameId = str(frame)
         imgReferences[frameId] = CTkImage(light_image=img, size=(w, h))
         imgLabel.configure(image=imgReferences[frameId])
-    except Exception as e:
-        print("Lỗi resize ảnh:", e)
-
-
 
 # Kiểm tra trường nhập có null hay không
 def checknull(entries,loginPanel,loginService):
@@ -68,11 +73,14 @@ def checknull(entries,loginPanel,loginService):
         check, loginE = loginService.check_login(entries[0].get(),entries[1].get(),loginPanel)
         if check:
             CTkMessagebox(title="Thành công", message="Bạn đã đăng nhập thành công")
-            print("hello")
-            loginPanel.destroy()
-            mainFrame().mainloop()
+            loginPanel.after(100, lambda: (loginPanel.destroy(), mainFrame().mainloop()))
         else:
             CTkMessagebox(title="Thất bại", message="Sai tài khoản hoặc mật khẩu")
+
+#giao dien cammera cho thang nhan vien
+def staffPanel(loginPanel):
+    FaceRecognition.App().mainloop()
+    loginPanel.destroy()
 
 
 def loginFrame():
@@ -160,7 +168,7 @@ def loginFrame():
 
     # Get absolute path to the background image
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    imgPath = os.path.join(base_dir, "..", "..", "Resources", "photo", "loginbg.png")
+    imgPath = os.path.join(base_dir, "..", "..", "Resources", "photo", "background.jpg")
 
     def on_resize(event):
         resizeImg(left, imgLabel, imgPath)
@@ -170,4 +178,4 @@ def loginFrame():
     resizeImg(left, imgLabel, imgPath)
     return loginPanel
 
-# loginFrame().mainloop()
+loginFrame().mainloop()

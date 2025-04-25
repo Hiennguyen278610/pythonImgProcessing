@@ -25,7 +25,8 @@ class LoginRepository:
                 SELECT tk.ma_nhan_vien, tk.username, tk.password, nv.ho_ten_nhan_vien
                 FROM tai_khoan tk
                          JOIN nhan_vien nv ON tk.ma_nhan_vien = nv.ma_nhan_vien
-                         JOIN chuc_vu cv ON nv.ma_chuc_vu = cv.ma_chuc_vu
+                         JOIN phan_cong pc ON nv.ma_nhan_vien = pc.ma_nhan_vien
+                         JOIN chuc_vu cv ON pc.ma_chuc_vu = cv.ma_chuc_vu;
                 WHERE tk.username = %s 
                   AND tk.password = %s
                   AND cv.ma_chuc_vu = 1

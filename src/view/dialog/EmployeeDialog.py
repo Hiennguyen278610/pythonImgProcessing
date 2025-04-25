@@ -17,7 +17,7 @@ class EmployeeDialog(CTkToplevel):
     def __init__(self, master, controller, mode="view", employee=None, callback=None):
         """
         Dialog đa năng cho nhân viên
-        
+
         mode: "view" (xem), "edit" (sửa), "add" (thêm)
         employee: Đối tượng nhân viên (None nếu thêm mới)
         callback: Hàm callback sau khi lưu thành công
@@ -30,24 +30,24 @@ class EmployeeDialog(CTkToplevel):
         self.department = DepartmentController().getAll()
         self.callback = callback
         self.image_data = None
-        
-        
+
+
         self.setupDialog()
         self.createWidgets()
-        
+
         # Load dữ liệu nếu ở chế độ edit hoặc view
         if self.employee:
             self.loadEmployeeData()
-            
+
         if self.mode == "view":
             self.disableControls()
-            
+
         # Tự động chọn input đầu tiên trong form (nếu không ở chế độ xem)
         if self.mode != "view":
             self.nameEntry.focus_set()
         # Hiển thị dialog (modal)
         self.grab_set()
-        
+
     def setupDialog(self):
         # Thiết lập tiêu đề
         title_texts = {
@@ -56,19 +56,19 @@ class EmployeeDialog(CTkToplevel):
             "add": "Thêm nhân viên mới"
         }
         self.title(title_texts.get(self.mode, "Nhân viên"))
-        
+
         # Kích thước và vị trí
         width, height, x, y = getCenterInit(self, 660, 605)
         self.geometry(f"{width}x{height}+{x}+{y}")
         self.resizable(False, False)
-    
+
     def createWidgets(self):
         self.body = CTkFrame(self)
         self.body.pack(fill="both", expand=True)
-        
+
         self.fromLayout = CTkFrame(self.body, fg_color="white")
         self.fromLayout.pack(fill="both", expand=True)
-        self.fromLayout.grid_propagate(False) 
+        self.fromLayout.grid_propagate(False)
         for i in range(12):
             self.fromLayout.grid_columnconfigure(i, weight=1)
         for i in range(11):
@@ -104,14 +104,14 @@ class EmployeeDialog(CTkToplevel):
         self.genderEntry = CTkFrame(self.fromLayout, fg_color="transparent", **configFrame())
         self.genderEntry.grid(row=3, column=7, rowspan=1, columnspan=5, padx=5, pady=2, sticky="ew")
         self.genderEntry.grid_columnconfigure((0, 1), weight=1)
-        
+
         self.genderValue = StringVar(value="nam")
         self.maleOption = CTkRadioButton(self.genderEntry, text="Nam", text_color="black", variable=self.genderValue, value="nam")
         self.maleOption.grid(row=0, column=0, sticky="nsew", padx=5, pady=2)
 
         self.femaleOption = CTkRadioButton(self.genderEntry, text="Nữ", text_color="black", variable=self.genderValue, value="nu")
         self.femaleOption.grid(row=0, column=1, sticky="nsew", padx=5, pady=2)
-        
+
 
         self.phoneEntry = CTkEntry(self.fromLayout, height=30)
         self.phoneEntry.grid(row=4, column=7, rowspan=1, columnspan=5, padx=5, pady=2, sticky="ew")
@@ -140,29 +140,29 @@ class EmployeeDialog(CTkToplevel):
 
         self.startDateLabel = CTkLabel(self.fromLayout, text="Ngày vào làm:", **textConfig, **configFrame())
         self.startDateLabel.grid(row=9, column=0, rowspan=1, columnspan=4, sticky="nse")
-        
+
         self.startDateEntry = DateEntry(self.fromLayout, height=30, date_pattern='yyyy-MM-dd', state="readonly")
         self.startDateEntry.grid(row=9, column=4, rowspan=1, columnspan=7, padx=5, pady=2, sticky="ew")
 
-        self.confirmBtn = CTkButton(self.fromLayout, text="Xác nhận", fg_color="transparent", 
+        self.confirmBtn = CTkButton(self.fromLayout, text="Xác nhận", fg_color="transparent",
             border_color="black", border_width=2, hover_color="cyan", text_color="black", command=self.saveEmployee)
         self.confirmBtn.grid(row=10, column=6, rowspan=1, columnspan=6, padx=20, pady=20, sticky="nsew")
 
-        self.closeDialogBtn = CTkButton(self.fromLayout, text="Đóng", fg_color="transparent", 
+        self.closeDialogBtn = CTkButton(self.fromLayout, text="Đóng", fg_color="transparent",
             border_color="black", border_width=2, hover_color="cyan", text_color="black", command=self.destroy)
         self.closeDialogBtn.grid(row=10, column=0, rowspan=1, columnspan=6, padx=20, pady=20, sticky="nsew")
-    
+
     def loadEmployeeData(self):
         if not self.employee:
             return
-        
+
         print (self.employee.gioi_tinh)
         self.nameEntry.insert(0, self.employee.ho_ten_nhan_vien or "")
         self.bodEntry.set_date(convertToDate(self.employee.ngay_sinh))
         self.genderValue.set(self.employee.gioi_tinh or "nam")
         self.phoneEntry.insert(0, self.employee.so_dien_thoai or "")
         self.addressEntry.insert(0, self.employee.dia_chi or "")
-        
+
         managers = convertDataComboBox(self.department, "ten_phong", "ma_truong_phong")
         thismanager = [key for key, value in managers.items() if value == self.employee.ma_ngql]
         self.managerEntry.set(thismanager[0])
@@ -170,8 +170,8 @@ class EmployeeDialog(CTkToplevel):
         thispos = [key for key, value in positions.items() if value == self.employee.ma_chuc_vu]
         self.positionEntry.set(thispos[0])
         self.startDateEntry.set_date(convertToDate(self.employee.ngay_vao_lam))
-        
-    
+
+
     def disableControls(self):
         self.nameEntry.configure(state="disabled", fg_color="white", text_color="black", border_width=0)
         self.bodEntry.configure(state="disabled")
@@ -183,11 +183,11 @@ class EmployeeDialog(CTkToplevel):
         self.maleOption.configure(state="disabled")
         self.femaleOption.configure(state="disabled")
         self.confirmBtn.configure(state="disabled", fg_color="grey")
-    
+
     def saveEmployee(self):
         if not self.validateForm():
             return
-            
+
         try:
             managers = convertDataComboBox(self.department, "ten_phong", "ma_truong_phong")
             managerName = self.managerEntry.get()
@@ -203,30 +203,31 @@ class EmployeeDialog(CTkToplevel):
                 'gioi_tinh': self.genderValue.get(),
                 'so_dien_thoai': self.phoneEntry.get().strip(),
                 'dia_chi': self.addressEntry.get().strip(),
-                'ma_ngql': managerID, 
-                'ma_chuc_vu': positionID, 
+                'ma_ngql': managerID,
+                'ma_chuc_vu': positionID,
                 'ngay_vao_lam': self.startDateEntry.get().strip(),
                 'url_image': ''
             }
-            
+
+
             if self.mode == "add":
                 self.controller.create(employeeData)
                 message = "Thêm nhân viên thành công!"
             else:
                 result = self.controller.update(self.employee.ma_nhan_vien, employeeData)
                 message = "Cập nhật thông tin nhân viên thành công!"
-                
+
             # Hiển thị thông báo thành công
             CTkMessagebox(title="Thành công", message=message, icon="check")
-            
+
             # Gọi callback nếu có
             if self.callback:
                 self.callback()
             self.after_idle(self.destroy)
-                
+
         except Exception as e:
             CTkMessagebox(title="Lỗi", message=f"Không thể lưu dữ liệu: {str(e)}", icon="cancel")
-    
+
     def validateForm(self):
         """Kiểm tra dữ liệu hợp lệ trước khi lưu"""
         # Họ tên
@@ -234,23 +235,22 @@ class EmployeeDialog(CTkToplevel):
             CTkMessagebox(title="Lỗi", message="Họ tên không được để trống!", icon="cancel")
             self.nameEntry.focus_set()
             return False
-            
+
         # Số điện thoại
         phone = self.phoneEntry.get().strip()
         if not phone:
             CTkMessagebox(title="Lỗi", message="Số điện thoại không được để trống!", icon="cancel")
             self.phoneEntry.focus_set()
             return False
-            
+
         if not phone.isdigit() or len(phone) != 10 or not phone.startswith('0'):
             CTkMessagebox(title="Lỗi", message="Số điện thoại phải có 10 chữ số và bắt đầu bằng số 0!", icon="cancel")
             self.phoneEntry.focus_set()
             return False
-            
+
         # Địa chỉ
         if not self.addressEntry.get().strip():
             CTkMessagebox(title="Lỗi", message="Địa chỉ không được để trống!", icon="cancel")
             self.addressEntry.focus_set()
             return False
         return True
-    
