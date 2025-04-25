@@ -1,6 +1,4 @@
 from customtkinter import *
-
-from src.controller.DepartmentController import DepartmentController
 from src.utils.viewExtention import *
 from src.view.AttendancePanel import AttendancePanel
 from src.view.DepartmentPanel import DepartmentPanel
@@ -11,7 +9,7 @@ from src.view.ContractPanel import ContractPanel
 from src.view.PositionPanel import PositionPanel
 from src.controller.PositionController import PositionController
 
-def mainFrame():
+def mainFrame(parent_app=None):
     mainPanel = CTk()
     mainPanel.title("Ứng dụng chấm công")
 
@@ -33,37 +31,29 @@ def mainFrame():
     leftTop = CTkFrame(left, fg_color=Ocean_Blue, height=50)
     leftTop.grid(row=0, column=0, sticky="nsew")
 
-    # Tiêu đề ứng dụng
     title_label = CTkLabel(
         leftTop,
         text="Staff Manager",
         font=("Arial", 16, "bold"),
         text_color=textClr
     )
-    title_label.pack(padx = 10, pady=10)
+    title_label.pack(padx=10, pady=10)
 
-    # Tạo TaskBar có thể cuộn được
     leftBottom = TaskBar(left, fg_color=Sky_Harbor)
     leftBottom.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
 
-    # Tạo frame cho nội dung bên phải
     right = CTkFrame(body, fg_color=Midnight_Navy)
     right.grid(row=0, column=1, sticky="nsew")
     right.grid_rowconfigure(0, weight=1)
     right.grid_columnconfigure(0, weight=1)
 
-    # Biến lưu panel hiện tại
     current_panel = None
 
-    # Hàm để chuyển đổi panel
     def on_entity_selected(key, entity_class):
         nonlocal current_panel
-
-        # Xóa panel hiện tại nếu có
         if current_panel:
             current_panel.grid_forget()
 
-        # Tạo panel mới dựa trên entity được chọn
         if key == "employee":
             current_panel = EmployeePanel(right)
         elif key == "contract":
@@ -75,23 +65,23 @@ def mainFrame():
         elif key == "attendance":
             current_panel = AttendancePanel(right)
 
-
-        # Hiển thị panel mới
         if current_panel:
             current_panel.grid(row=0, column=0, sticky="nsew")
 
-    # Thêm các đối tượng vào taskbar
     leftBottom.add_entity("Nhân viên", "employee", EmployeePanel)
     leftBottom.add_entity("Hợp đồng", "contract", ContractPanel)
     leftBottom.add_entity("Chức vụ", "position", PositionPanel)
     leftBottom.add_entity("Phòng ban", "department", DepartmentPanel)
     leftBottom.add_entity("Điểm danh", "attendance", AttendancePanel)
 
-    # Gán callback cho taskbar
     leftBottom.entity_callback = on_entity_selected
 
-    return mainPanel
+    # Đóng mainPanel và mở lại login nếu có
+    def on_close():
+        if parent_app:
+            parent_app.deiconify()
+        mainPanel.destroy()
 
-# if __name__ == "__main__":
-#     mainPanel = mainFrame()
-#     mainPanel.mainloop()
+    mainPanel.protocol("WM_DELETE_WINDOW", on_close)
+
+    return mainPanel
