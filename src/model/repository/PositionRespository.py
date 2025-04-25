@@ -142,20 +142,21 @@ class PositionRespository:
         cursor = connection.cursor()
 
         # Check for dependencies (e.g., in employees table)
-        dependency_query = "SELECT COUNT(*) FROM nhan_vien WHERE ma_chuc_vu = %s"
+        # dependency_query = "SELECT COUNT(*) FROM nhan_vien join phan_cong on nhan_vien.ma_nhan_vien = phan_cong.ma_nhan_vien WHERE ma_chuc_vu = %s"
+        query_phan_cong = "DELETE FROM phan_cong WHERE ma_chuc_vu = %s"
         try:
-            cursor.execute(dependency_query, (ma_chuc_vu,))
-            if cursor.fetchone()[0] > 0:
-                cursor.close()
-                connection.close()
-                raise ValueError(f"Không thể xóa chức vụ này vì có nhân viên đang giữ chức vụ này.")
-
+            cursor.execute(query_phan_cong, (ma_chuc_vu,))
+            connection.commit()
+        except mysql.connector.Error as err:
+            print(f"Database error 1 : {err}")
+        try:
+            # cursor.execute(dependency_query, (ma_chuc_vu,))
             query = "DELETE FROM chuc_vu WHERE ma_chuc_vu = %s"
             cursor.execute(query, (ma_chuc_vu,))
             connection.commit()
             return cursor.rowcount > 0
         except mysql.connector.Error as err:
-            print(f"Database error: {err}")
+            print(f"Database error 2: {err}")
             raise err
         finally:
             cursor.close()

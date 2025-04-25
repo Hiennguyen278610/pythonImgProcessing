@@ -52,7 +52,7 @@ class CheckAttendanceDialog(customtkinter.CTkToplevel):
             self.timeCheckIn.configure(text=f"Thời gian: {str(attendanced.gio_vao)}")
             self.timeCheckOut.configure(text="Chưa checkout")
             if Path(attendanced.img_checkin).exists():
-                pil_image = Image.open(Path(attendanced.img_checkin))  # Đọc ảnh bằng PIL
+                pil_image = Image.open(Path(attendanced.img_checkin))
                 ctk_img = CTkImage(pil_image, size=(400, 300))
                 self.imgCheckIn.configure(image=ctk_img)
                 print("Tìm thấy ảnh!")

@@ -16,7 +16,7 @@ class EmployeeService:
     
     def createEmployee(self, employeeData):
         employee = Employee(
-            ma_nhan_vien=None,  # ID sẽ được cơ sở dữ liệu tự sinh
+            ma_nhan_vien=None,
             ma_ngql=employeeData.get('ma_ngql'),
             ma_chuc_vu=employeeData.get('ma_chuc_vu'),
             ho_ten_nhan_vien=employeeData.get('ho_ten_nhan_vien'),
@@ -39,8 +39,6 @@ class EmployeeService:
         
         if 'ma_ngql' in employeeData:
             existEmployee.ma_ngql = employeeData.get('ma_ngql')
-        if 'ma_chuc_vu' in employeeData:
-            existEmployee.ma_chuc_vu = employeeData.get('ma_chuc_vu')
         if 'ho_ten_nhan_vien' in employeeData:
             existEmployee.ho_ten_nhan_vien = employeeData.get('ho_ten_nhan_vien')
         if 'ngay_sinh' in employeeData:

@@ -14,10 +14,12 @@ class EmployeeRepository:
         cursor = connection.cursor()
         query = """
             SELECT
-                ma_nhan_vien, ma_ngql, ma_chuc_vu,
-                ho_ten_nhan_vien, ngay_sinh, so_dien_thoai,
-                dia_chi, gioi_tinh, ngay_vao_lam, url_image
-            FROM nhan_vien
+                nv.ma_nhan_vien, nv.ma_ngql,
+                pc.ma_chuc_vu,
+                nv.ho_ten_nhan_vien, nv.ngay_sinh, nv.so_dien_thoai,
+                nv.dia_chi, nv.gioi_tinh, nv.ngay_vao_lam, nv.url_image
+            FROM nhan_vien nv
+            INNER JOIN phan_cong pc ON nv.ma_nhan_vien = pc.ma_nhan_vien
         """
 
         employees = []
@@ -42,7 +44,7 @@ class EmployeeRepository:
                 )
                 employees.append(employee)
         except mysql.connector.Error as err:
-            print(f"Database error: {err}")
+            print(f"Database error 3: {err}")
             return []
         finally:
             cursor.close()
@@ -55,11 +57,12 @@ class EmployeeRepository:
         cursor = connection.cursor()
         query = """
                 SELECT
-                    ma_nhan_vien, ma_ngql, ma_chuc_vu,
-                    ho_ten_nhan_vien, ngay_sinh, so_dien_thoai,
-                    dia_chi, gioi_tinh, ngay_vao_lam, url_image
-                FROM nhan_vien
-                WHERE ma_nhan_vien LIKE %s
+                    nv.ma_nhan_vien, nv.ma_ngql, pc.ma_chuc_vu,
+                    nv.ho_ten_nhan_vien, nv.ngay_sinh, nv.so_dien_thoai,
+                    nv.dia_chi, nv.gioi_tinh, nv.ngay_vao_lam, nv.url_image
+                FROM nhan_vien nv
+                INNER JOIN phan_cong pc ON nv.ma_nhan_vien = pc.ma_nhan_vien
+                WHERE nv.ma_nhan_vien LIKE %s
             """
         employee = None
 
@@ -83,7 +86,7 @@ class EmployeeRepository:
                     url_image=url_image
                 )
         except mysql.connector.Error as err:
-            print(f"Database error: {err}")
+            print(f"Database error 4: {err}")
         finally:
             cursor.close()
             connection.close()
@@ -95,13 +98,12 @@ class EmployeeRepository:
         cursor = connection.cursor()
 
         if employee.ma_nhan_vien is None:
-            query = """INSERT INTO nhan_vien (ma_ngql, ma_chuc_vu, ho_ten_nhan_vien, 
+            query = """INSERT INTO nhan_vien (ma_ngql, ho_ten_nhan_vien, 
                     ngay_sinh, so_dien_thoai, dia_chi, gioi_tinh, ngay_vao_lam, url_image) 
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
 
             data = (
                 employee.ma_ngql,
-                employee.ma_chuc_vu,
                 employee.ho_ten_nhan_vien,
                 employee.ngay_sinh,
                 employee.so_dien_thoai,
@@ -114,22 +116,29 @@ class EmployeeRepository:
             try:
                 cursor.execute(query, data)
                 connection.commit()
-                employee.ma_nhan_vien = cursor.lastrowid
             except mysql.connector.Error as err:
-                print(f"Database error: {err}")
+                print(f"Database error 5: {err}")
+
+            query_phan_cong = """INSERT INTO phan_cong (ma_nhan_vien, ma_chuc_vu) VALUES (%s, %s)"""
+            data_phan_cong = (cursor.lastrowid, employee.ma_chuc_vu)
+
+            try:
+                cursor.execute(query_phan_cong, data_phan_cong)
+                connection.commit()
+            except mysql.connector.Error as err:
+                print(f"Database error 6: {err}")
             finally:
                 cursor.close()
                 connection.close()
         else:
             query = """UPDATE nhan_vien
-                    SET ma_ngql = %s, ma_chuc_vu = %s, ho_ten_nhan_vien = %s,
+                    SET ma_ngql = %s, ho_ten_nhan_vien = %s,
                     ngay_sinh = %s, so_dien_thoai = %s, dia_chi = %s, gioi_tinh = %s, 
                     ngay_vao_lam = %s, url_image = %s
                     WHERE ma_nhan_vien = %s"""
 
             data = (
                 employee.ma_ngql,
-                employee.ma_chuc_vu,
                 employee.ho_ten_nhan_vien,
                 employee.ngay_sinh,
                 employee.so_dien_thoai,
@@ -145,6 +154,20 @@ class EmployeeRepository:
                 connection.commit()
             except mysql.connector.Error as err:
                 print(f"Database error: {err}")
+
+            query_delete = """DELETE FROM phan_cong WHERE ma_nhan_vien = %s"""
+            try:
+                cursor.execute(query_delete, (employee.ma_nhan_vien,))
+                connection.commit()
+            except mysql.connector.Error as err:
+                print(f"Database error 8: {err}")
+
+            query_insert = """INSERT INTO phan_cong (ma_nhan_vien, ma_chuc_vu) VALUES (%s, %s)"""
+            try:
+                cursor.execute(query_insert, (employee.ma_nhan_vien, employee.ma_chuc_vu))
+                connection.commit()
+            except mysql.connector.Error as err:
+                print(f"Database error 9: {err}")
             finally:
                 cursor.close()
                 connection.close()
@@ -155,15 +178,21 @@ class EmployeeRepository:
         connection = self.getConnection()
         cursor = connection.cursor()
 
-        query = "DELETE FROM nhan_vien WHERE ma_nhan_vien = %s"
-
         try:
-            cursor.execute(query, (ma_nhan_vien,))
+            query_phan_cong = "DELETE FROM phan_cong WHERE ma_nhan_vien = %s"
+            cursor.execute(query_phan_cong, (ma_nhan_vien,))
+
             connection.commit()
             return cursor.rowcount > 0
         except mysql.connector.Error as err:
-            print(f"Database error: {err}")
+            print(f"Database error 10: {err}")
             return False
+        query_nhan_vien = "DELETE FROM nhan_vien WHERE ma_nhan_vien = %s"
+        try:
+            cursor.execute(query_nhan_vien, (ma_nhan_vien,))
+            connection.commit()
+        except mysql.connector.Error as err:
+            print(f"Database error 11: {err}")
         finally:
             cursor.close()
             connection.close()
@@ -172,17 +201,17 @@ class EmployeeRepository:
         connection = self.getConnection()
         cursor = connection.cursor()
 
-        query = """SELECT * FROM nhan_vien WHERE ho_ten_nhan_vien LIKE %s"""
+        query = """SELECT * FROM nhan_vien inner join phan_cong on nhan_vien.ma_nhan_vien = phan_cong.ma_nhan_vien WHERE ho_ten_nhan_vien LIKE %s"""
         employees = []
 
         try:
             cursor.execute(query, (f"%{ho_ten_nhan_vien}%",))
-            for (ma_nhan_vien, ma_ngql, ma_chuc_vu, ho_ten_nhan_vien, 
+            for (ma_nhan_vien, ma_ngql, ma_chuc_vu, ho_ten_nhan_vien,
                 ngay_sinh, so_dien_thoai, dia_chi, gioi_tinh, ngay_vao_lam, url_image) in cursor:
                 employee = Employee(
                     ma_nhan_vien=ma_nhan_vien,
                     ma_ngql=ma_ngql,
-                    ma_chuc_vu=ma_chuc_vu,
+                    ma_chuc_vu= ma_chuc_vu,
                     ho_ten_nhan_vien=ho_ten_nhan_vien,
                     ngay_sinh=ngay_sinh,
                     so_dien_thoai=so_dien_thoai,
@@ -193,7 +222,7 @@ class EmployeeRepository:
                 )
                 employees.append(employee)
         except mysql.connector.Error as err:
-            print(f"Database error: {err}")
+            print(f"Database error 12: {err}")
             return []
         finally:
             cursor.close()
