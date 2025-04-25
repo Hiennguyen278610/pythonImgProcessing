@@ -23,7 +23,18 @@ class DepartmentController:
         return self.service.updateDepartment(ma_phong, departmentData)
 
     def delete(self, ma_phong):
-        return self.service.deleteDepartment(ma_phong)
+        try:
+            deleted = self.service.deleteDepartment(ma_phong)
+            if deleted:
+                return True, "Xóa phòng ban thành công."
+            else:
+                return False, "Xóa phòng ban không thành công."
+        except ValueError as ve:
+            # lỗi do không tìm thấy hoặc validate không pass
+            return False, str(ve)
+        except Exception as e:
+            # các lỗi khác (DB, ngoại lệ không lường trước)
+            return False, f"Đã xảy ra lỗi khi xóa: {e}"
 
     def search(self, search_text, keyword):
         return self.service.search(search_text, keyword)

@@ -162,6 +162,30 @@ class PositionRespository:
             cursor.close()
             connection.close()
 
+    def deleteByDepartmentId(self, ma_phong):
+        connection = self.getConnection()
+        if not connection:
+            return False
+        cursor = connection.cursor()
+        try:
+            # Xóa các dòng trong phan_cong liên kết với chức vụ thuộc phòng này
+            cursor.execute("""
+                DELETE FROM phan_cong 
+                WHERE ma_chuc_vu IN (SELECT ma_chuc_vu FROM chuc_vu WHERE ma_phong = %s)
+            """, (ma_phong,))
+            connection.commit()
+
+            # Xóa chức vụ thuộc phòng này
+            cursor.execute("DELETE FROM chuc_vu WHERE ma_phong = %s", (ma_phong,))
+            connection.commit()
+            return True
+        except mysql.connector.Error as err:
+            print(f"Database error in deleteByDepartmentId: {err}")
+            raise err
+        finally:
+            cursor.close()
+            connection.close()
+
     def checkDepartmentExists(self, ma_phong):
         connection = self.getConnection()
         if not connection:

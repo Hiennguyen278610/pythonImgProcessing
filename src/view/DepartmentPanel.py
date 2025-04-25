@@ -53,11 +53,24 @@ class DepartmentPanel(EntityFrame):
             DepartmentDialog(self, self.controller, department)
 
     def onDelete(self):
-        if self.selected_department:
-            if self.controller.delete(self.selected_department.ma_phong):
+        selected = self.table.getSelected()
+        if not selected:
+            messagebox.showwarning("Cảnh Báo", "Vui lòng chọn một phòng ban để xóa")
+            return
+
+        confirm = messagebox.askyesno(
+            "Xác Nhận Xóa",
+            f"Bạn có chắc chắn muốn xóa phòng ban: {selected.ten_phong}?"
+        )
+        if confirm:
+            success, msg = self.controller.delete(selected.ma_phong)
+            if success:
+                messagebox.showinfo("Thành Công", msg)
                 self.loadData()
                 self.selected_department = None
                 self.crudTool.enableItemButtons(False)
+            else:
+                messagebox.showerror("Lỗi", msg)
 
     def onView(self):
         if not self.selected_department:

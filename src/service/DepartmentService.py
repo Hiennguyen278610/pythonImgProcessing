@@ -1,5 +1,7 @@
 from src.model.entity.DepartmentEntity import Department
 from src.model.repository.DepartmentRespository import DepartmentRespository
+from src.model.repository.EmployeeRespository import EmployeeRepository
+from src.model.repository.PositionRespository import PositionRespository
 import re
 from tkinter import messagebox
 
@@ -8,6 +10,7 @@ from tkinter import messagebox
 class DepartmentService:
     def __init__(self):
         self.repository = DepartmentRespository()
+        self.position_repository = PositionRespository()
 
     def findAll(self):
         return self.repository.findAll()
@@ -47,6 +50,11 @@ class DepartmentService:
         existDepartment = self.repository.findById(ma_phong)
         if not existDepartment:
             raise ValueError(f"Phòng ban có mã {ma_phong} không tồn tại.")
+
+        # Xóa các chức vụ thuộc phòng ban này (bao gồm các phân công liên quan)
+        self.position_repository.deleteByDepartmentId(ma_phong)
+
+        # Sau khi không còn phụ thuộc, xóa phòng ban
         return self.repository.delete(ma_phong)
 
     def validateDepartment(self, department):
