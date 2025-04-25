@@ -74,15 +74,6 @@ def checknull(entries,loginPanel,loginService):
         else:
             CTkMessagebox(title="Thất bại", message="Sai tài khoản hoặc mật khẩu")
 
-#giao dien cammera cho thang nhan vien
-def staffPanel(loginPanel):
-    try:
-        FaceRecognition.App().mainloop()
-        loginPanel.destroy()
-    except Exception as e:
-        print("Lỗi mở camera:", e)
-
-
 
 def loginFrame():
     loginPanel = CTk()
@@ -169,7 +160,7 @@ def loginFrame():
 
     # Get absolute path to the background image
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    imgPath = os.path.join(base_dir, "..", "..", "Resources", "photo", "background.jpg")
+    imgPath = os.path.join(base_dir, "..", "..", "Resources", "photo", "loginbg.png")
 
     def on_resize(event):
         resizeImg(left, imgLabel, imgPath)
