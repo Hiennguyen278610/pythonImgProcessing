@@ -87,5 +87,5 @@ def mainFrame(parent_app=None):
     return mainPanel
 
 
-# if __name__ == "__main__":
-#     mainFrame().mainloop()
+if __name__ == "__main__":
+    mainFrame().mainloop()

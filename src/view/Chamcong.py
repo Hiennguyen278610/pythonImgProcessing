@@ -129,6 +129,12 @@ class HomeFrame(ctk.CTkFrame):
             face_window.focus_force()
             face_window.resizable(False, False)
 
+            def on_close():
+                face_frame.cap.release()
+                face_window.destroy()
+
+            face_window.protocol("WM_DELETE_WINDOW", on_close)
+
         except Exception as e:
             CTkMessagebox(
                 title="Lỗi",
