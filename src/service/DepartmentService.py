@@ -1,5 +1,7 @@
 from src.model.entity.DepartmentEntity import Department
 from src.model.repository.DepartmentRespository import DepartmentRespository
+import re
+from tkinter import messagebox
 
 class DepartmentService:
     def __init__(self):
@@ -45,8 +47,20 @@ class DepartmentService:
         if not existDepartment:
             raise ValueError(f"Phòng ban có mã {ma_phong} không tồn tại.")
         return self.repository.delete(ma_phong)
-    
+
     def validDepartment(self, department):
-        if not department.ten_phong or not department.ten_phong.strip():
+        ten_phong = department.ten_phong
+
+        if not ten_phong or not ten_phong.strip():
+            messagebox.showwarning("Cảnh bảo","tên phòng không được rỗng")
             raise ValueError("Tên phòng ban không được để trống.")
+
+        if len(ten_phong) > 50:
+            messagebox.showwarning("Cảnh báo","Tên phòng không được vượt quá 50 kí tự")
+            raise ValueError("Tên phòng ban không được vượt quá 50 ký tự.")
+
+        if re.search(r'[^a-zA-ZÀ-ỹ\s]', ten_phong):
+            messagebox.showwarning("Cảnh báo","tên phòng không được số hoặc kí tự đặc biệt")
+            raise ValueError("Tên phòng ban không được chứa ký tự đặc biệt hoặc số.")
+
         return True

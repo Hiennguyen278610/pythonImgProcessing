@@ -116,7 +116,7 @@ def loginFrame():
     headRight.grid(row=0, column=0, padx=80, pady=10, sticky="w")
 
     title = CTkLabel(headRight,
-                     text="Đàn em anh hải",
+                     text="Ứng dụng điểm danh",
                      text_color=textClr,
                      font=("San Serif", 36, "bold"))
     title.grid(row=0, column=0, padx=10, pady=5, sticky="w")
@@ -138,7 +138,7 @@ def loginFrame():
     footRightFrame.grid_columnconfigure(0, weight=1)
 
     usernameTxt = CTkEntry(footRightFrame,
-                           placeholder_text="Nhập email hoặc username ....",
+                           placeholder_text="Nhập username ....",
                            font=("San Serif", 14, "bold"),
                            border_width=0,
                            fg_color=secondaryCrl,
@@ -178,4 +178,4 @@ def loginFrame():
     resizeImg(left, imgLabel, imgPath)
     return loginPanel
 
-loginFrame().mainloop()
+# loginFrame().mainloop()
