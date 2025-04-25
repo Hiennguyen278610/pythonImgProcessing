@@ -15,26 +15,34 @@ class AttendanceService:
         self.known_face_id = []
 
     def load_known_faces(self):
-        base_dir = os.path.dirname(os.path.abspath(__file__))  # đường dẫn tuyệt đối đến thư mục chứa file hiện tại
-        resource_dir = os.path.abspath(os.path.join(base_dir, "..", "..", "Resources", "faceImg"))
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        root_dir = os.path.abspath(os.path.join(current_dir, "..", "..", ".."))
+        face_img_dir = os.path.join(root_dir, "Resources", "faceImg")
 
         employees = self.employee_repo.findAll()
         for employee in employees:
-            path = os.path.join(resource_dir, employee.url_image)
-            if not os.path.exists(path):
-                print(f"[LỖI] Ảnh không tồn tại: {path}")
+            img_path = os.path.join(face_img_dir, employee.url_image)
+
+            if not os.path.exists(img_path):
+                print(f"[LỖI] Ảnh không tồn tại: {img_path}")
                 continue
-            image = face_recognition.load_image_file(path)
+
+            image = face_recognition.load_image_file(img_path)
             encoding = face_recognition.face_encodings(image)
             if encoding:
                 self.known_face_encodings.append(encoding[0])
                 self.known_face_id.append(employee.ma_nhan_vien)
 
-        encodeWithId = [self.known_face_encodings, self.known_face_id]
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../.."))
+        encode_path = os.path.join(project_root, "Resources", "EncodeFile.p")
 
-        encode_file_path = os.path.abspath(os.path.join(base_dir, "..", "..", "Resources", "EncodeFile.p"))
-        with open(encode_file_path, 'wb') as file:
-            pickle.dump(encodeWithId, file)
+        if not os.path.exists(encode_path):
+            raise FileNotFoundError(f"Không tìm thấy file: {encode_path}")
+
+        # Đọc file encoding
+        with open(encode_path, 'rb') as f:
+            data = pickle.load(f)
+            self.known_face_encodings, self.known_face_id = data
 
     def load_file_encode(self):
         try:
