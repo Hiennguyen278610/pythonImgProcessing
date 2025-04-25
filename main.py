@@ -85,3 +85,7 @@ def mainFrame(parent_app=None):
     mainPanel.protocol("WM_DELETE_WINDOW", on_close)
 
     return mainPanel
+
+
+# if __name__ == "__main__":
+#     mainFrame().mainloop()
