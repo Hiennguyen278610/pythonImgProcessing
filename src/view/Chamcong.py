@@ -135,7 +135,7 @@ class HomeFrame(ctk.CTkFrame):
                 message=f"Không thể mở camera chấm công: {str(e)}"
             )
 
-    def open_manager_login(self):
+    def open_manager_login(self): # hanh bi nguu
         try:
             self.master.destroy()  # Đóng frame hiện tại
             login_frame = loginFrame()
