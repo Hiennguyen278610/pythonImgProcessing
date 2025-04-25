@@ -110,6 +110,6 @@ class App(customtkinter.CTk):
         self.grid_columnconfigure(0, weight=1)
         self.my_frame = FaceRegconiton(master=self, width=w, height=h)
         self.my_frame.grid(row=0, column=0, padx=20, pady=20, sticky="nsew")
-
+#
 # app = App()
 # app.mainloop()
