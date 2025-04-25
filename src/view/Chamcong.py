@@ -107,10 +107,28 @@ class HomeFrame(ctk.CTkFrame):
 
     def open_staff_camera(self):
         try:
-            app = FaceRecognition.App()
-            # Căn giữa cửa sổ camera chấm công
-            app.after(100, lambda: center_window(app, 800, 600))
-            app.mainloop()
+            # Tránh tạo cửa sổ mới, thay vào đó hiển thị nó trong một toplevel window
+            face_window = ctk.CTkToplevel(self)
+            face_window.title("Chấm công nhân viên")
+            face_window.withdraw()  # Ẩn cửa sổ trước khi cấu hình
+
+            # Cấu hình cửa sổ
+            face_window.grid_rowconfigure(0, weight=1)
+            face_window.grid_columnconfigure(0, weight=1)
+
+            # Tạo frame nhận diện khuôn mặt trong cửa sổ mới
+            face_frame = FaceRecognition.FaceRegconiton(master=face_window, width=1240, height=680)
+            face_frame.grid(row=0, column=0, padx=20, pady=20, sticky="nsew")
+
+            # Căn giữa cửa sổ
+            center_window(face_window, 1280, 720)
+
+            # Hiển thị cửa sổ
+            face_window.deiconify()
+            face_window.lift()
+            face_window.focus_force()
+            face_window.resizable(False, False)
+
         except Exception as e:
             CTkMessagebox(
                 title="Lỗi",

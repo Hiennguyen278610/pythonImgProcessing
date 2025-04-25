@@ -15,36 +15,71 @@ class AttendanceService:
         self.known_face_id = []
 
     def load_known_faces(self):
-        base_dir = os.path.dirname(os.path.abspath(__file__))  # đường dẫn tuyệt đối đến thư mục chứa file hiện tại
-        resource_dir = os.path.abspath(os.path.join(base_dir, "..", "..", "Resources", "faceImg"))
-
         employees = self.employee_repo.findAll()
+
+        # Get the absolute path to the project directory
+        project_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+
+        # Create resources directory if it doesn't exist
+        resources_dir = os.path.join(project_dir, "Resources")
+        faceimg_dir = os.path.join(resources_dir, "faceImg")
+
+        os.makedirs(resources_dir, exist_ok=True)
+        os.makedirs(faceimg_dir, exist_ok=True)
+
         for employee in employees:
-            path = os.path.join(resource_dir, employee.url_image)
+            # This fixes the path to just use faceImg once (not twice)
+            path = os.path.join(project_dir, "Resources", "faceImg", employee.url_image.replace("faceImg\\", ""))
+            path = os.path.normpath(path)
+
+            # Debug output
+            print(f"Looking for image at: {path}")
+
             if not os.path.exists(path):
-                print(f"[LỖI] Ảnh không tồn tại: {path}")
+                print(f"Warning: Image file not found: {path}")
                 continue
-            image = face_recognition.load_image_file(path)
-            encoding = face_recognition.face_encodings(image)
-            if encoding:
-                self.known_face_encodings.append(encoding[0])
-                self.known_face_id.append(employee.ma_nhan_vien)
 
+            try:
+                image = face_recognition.load_image_file(path)
+                encoding = face_recognition.face_encodings(image)
+                if encoding:
+                    self.known_face_encodings.append(encoding[0])
+                    self.known_face_id.append(employee.ma_nhan_vien)
+            except Exception as e:
+                print(f"Error processing image {path}: {str(e)}")
+
+        # Save encodings
         encodeWithId = [self.known_face_encodings, self.known_face_id]
+        encode_file_path = os.path.join(project_dir, "Resources", "EncodeFile.p")
+        encode_file_path = os.path.normpath(encode_file_path)
 
-        encode_file_path = os.path.abspath(os.path.join(base_dir, "..", "..", "Resources", "EncodeFile.p"))
+        # Ensure the directory exists
+        os.makedirs(os.path.dirname(encode_file_path), exist_ok=True)
+
+        print(f"Saving encodings to: {encode_file_path}")
         with open(encode_file_path, 'wb') as file:
             pickle.dump(encodeWithId, file)
 
     def load_file_encode(self):
         try:
-            with open("src/../Resources/EncodeFile.p", 'rb') as file:
+            project_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+            encode_file_path = os.path.join(project_dir, "Resources", "EncodeFile.p")
+            encode_file_path = os.path.normpath(encode_file_path)
+
+            print(f"Looking for encodings at: {encode_file_path}")
+
+            if not os.path.exists(encode_file_path):
+                print(f"Encodings file not found: {encode_file_path}")
+                self.known_face_encodings, self.known_face_id = [], []
+                return
+
+            with open(encode_file_path, 'rb') as file:
                 encodeWithId = pickle.load(file)
                 self.known_face_encodings, self.known_face_id = encodeWithId
-                print(len(self.known_face_encodings))
-        except:
+                print(f"Loaded {len(self.known_face_encodings)} face encodings")
+        except Exception as e:
             self.known_face_encodings, self.known_face_id = [], []
-            print(len(self.known_face_encodings))
+            print(f"No encodings loaded: {str(e)}")
 
     def add_new_face(self, new_employee):
         try:
@@ -53,8 +88,7 @@ class AttendanceService:
                 known_encodings, known_ids = encodeWithId
         except:
             known_encodings, known_ids = [], []
-        path = os.path.join("..\\..\\..\\Resources", new_employee.urlImage)
-        path = os.path.normpath(path)
+        path = os.path.join("../../../Resources/", new_employee.urlImage)
         if not os.path.exists(path):
             return
         image = face_recognition.load_image_file(path)
@@ -94,9 +128,10 @@ class AttendanceService:
         return employee_attendance
 
     def save_attendance_img(self, frame, ma_nhan_vien):
+        project_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
         today = datetime.now().strftime("%Y-%m-%d")
         time_now = datetime.now().strftime("%H-%M-%S")
-        folder_path = os.path.join("scr\\..\\Resources", "attendanceImg", today)
+        folder_path = os.path.join(project_dir, "Resources", "attendanceImg", today)
         os.makedirs(folder_path, exist_ok=True)
         filename = f"{ma_nhan_vien}_{time_now}.jpg"
         file_path = os.path.join(folder_path, filename)
