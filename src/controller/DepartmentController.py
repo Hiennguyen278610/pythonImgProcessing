@@ -1,14 +1,17 @@
 from src.model.repository.DepartmentRespository import DepartmentRespository
 from src.service.DepartmentService import DepartmentService
-
-
+from src.controller.EmployeeController import EmployeeController  # import controller
 
 class DepartmentController:
-    def __init__(self):
+    def __init__(self, employeeController=None):
         self.service = DepartmentService()
+        self.employeeController = employeeController or EmployeeController()  # dùng controller
 
     def getAll(self):
         return self.service.findAll()
+
+    def getAllEmployees(self):
+        return self.employeeController.getAll()  # dùng hàm getAll từ EmployeeController
 
     def getById(self, ma_phong):
         return self.service.findById(ma_phong)
@@ -24,4 +27,3 @@ class DepartmentController:
 
     def search(self, search_text, keyword):
         return self.service.search(search_text, keyword)
-

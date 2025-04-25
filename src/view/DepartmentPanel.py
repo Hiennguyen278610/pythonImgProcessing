@@ -5,7 +5,7 @@ from customtkinter import CTkLabel
 from src.controller.DepartmentController import DepartmentController
 from src.view.component.EntityFrame import EntityFrame
 from src.view.component.toolbar.FilterToolbar import FilterToolbar
-from src.view.dialog.departmentDialog import DepartmentDialog
+from src.view.dialog.DepartmentDialog import DepartmentDialog
 
 class DepartmentPanel(EntityFrame):
     def __init__(self, master,**kwargs):
