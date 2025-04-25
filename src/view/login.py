@@ -3,22 +3,18 @@ from datetime import datetime
 from CTkMessagebox import CTkMessagebox
 from PIL import Image
 import os
-from main import *
+from main import mainFrame
 import FaceRecognition
 from src.service.loginService import LoginService
-from main import mainFrame
 
 import customtkinter
 import calendar
-
 
 from src.controller.DepartmentController import DepartmentController
 from src.controller.EmployeeController import EmployeeController
 from src.controller.PositionController import PositionController
 from src.utils.viewExtention import getCenterInit
 from src.controller.AttendanceController import AttendanceController
-from src.view.component.toolbar.FilterToolbar import FilterToolbar
-from src.view.dialog.checkAttendanceDialog import CheckAttendanceDialog
 
 # Biến màu tối
 primaryClr = "#6D54B5"
@@ -28,7 +24,35 @@ bgClr = "#2c2736"
 textClr = "#FFFFFF"
 borderClr = "#000000"
 
+# Image references dictionary to prevent garbage collection
 imgReferences = {}
+
+
+def safe_destroy(window):
+    """Safely destroy a window, avoiding Tcl command errors."""
+    # Nếu cửa sổ đã bị hủy rồi thì thôi
+    if not window or not window.winfo_exists():
+        return
+
+    try:
+        window.destroy()
+    except Exception as e:
+        # Bắt mọi lỗi liên quan đến Tcl và tiếp tục
+        print(f"Error during safe_destroy: {e}")
+
+
+
+# Center window function
+def center_window(window, width, height):
+    """Căn giữa cửa sổ trên màn hình desktop"""
+    screen_width = window.winfo_screenwidth()
+    screen_height = window.winfo_screenheight()
+
+    x = int((screen_width - width) / 2)
+    y = int((screen_height - height) / 2)
+
+    window.geometry(f"{width}x{height}+{x}+{y}")
+
 
 # Hàm crop theo bottom ảnh
 def bottomCrop(img, tempWidth, tempHeight, bias=0.7):
@@ -39,17 +63,33 @@ def bottomCrop(img, tempWidth, tempHeight, bias=0.7):
     bottom = top + tempHeight
     return img.crop((left, top, right, bottom))
 
-# Scale ảnh
-def resizeImg(frame, imgLabel, imgPath):
-    if not frame.winfo_exists() or not imgLabel.winfo_exists():
-        return  # tránh lỗi khi widget đã bị huỷ
 
-    w = frame.winfo_width()
-    h = frame.winfo_height()
+# Simplified image loading function
+def load_background_image(frame, label, image_path):
+    """Load background image with better error handling"""
+    global imgReferences
 
-    if w > 1 and h > 1:
-        img = Image.open(imgPath)
-        ratio = w / h
+    # Check if image exists
+    if not image_path or not os.path.exists(image_path):
+        print(f"Image not found: {image_path}")
+        # Configure label to show error text instead
+        label.configure(text="Background Image Not Found", text_color="#FF6B6B")
+        return False
+
+    try:
+        # Get frame dimensions
+        width = frame.winfo_width()
+        height = frame.winfo_height()
+
+        # Wait until frame is properly sized
+        if width <= 1 or height <= 1:
+            return False
+
+        # Load and process image
+        img = Image.open(image_path)
+
+        # Calculate ratios for proper cropping
+        ratio = width / height
         img_ratio = img.width / img.height
 
         if img_ratio > ratio:
@@ -59,36 +99,99 @@ def resizeImg(frame, imgLabel, imgPath):
             crop_w = img.width
             crop_h = int(img.width / ratio)
 
+        # Crop the image
         img = bottomCrop(img, crop_w, crop_h)
-        frameId = str(frame)
-        imgReferences[frameId] = CTkImage(light_image=img, size=(w, h))
-        imgLabel.configure(image=imgReferences[frameId])
+
+        # Create CTkImage and explicitly store reference
+        ctk_image = CTkImage(light_image=img, size=(width, height))
+        imgReferences['background'] = ctk_image
+
+        # Update label with image
+        label.configure(image=ctk_image, text="")
+        return True
+
+    except Exception as e:
+        print(f"Error loading background image: {e}")
+        label.configure(text=f"Error loading image", text_color="#FF6B6B")
+        return False
+
+
+def find_background_image():
+    """Find the background image file with proper paths"""
+    # Start with the current script's directory
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # Try common project structures
+    possible_paths = [
+        os.path.join(base_dir, "resources", "photo", "background.jpg"),
+        os.path.join(base_dir, "Resources", "photo", "background.jpg"),
+        os.path.join(os.path.dirname(base_dir), "resources", "photo", "background.jpg"),
+        os.path.join(os.path.dirname(base_dir), "Resources", "photo", "background.jpg"),
+        # Add absolute path as fallback (remove or adjust as needed)
+        "/home/thanhhai/Documents/PYTHON/pythonImgProcessing/Resources/photo/background.jpg"
+    ]
+
+    # Add user's home directory as another possibility
+    home_dir = os.path.expanduser("~")
+    possible_paths.append(os.path.join(home_dir, "Documents", "PYTHON", "pythonImgProcessing",
+                                       "Resources", "photo", "background.jpg"))
+
+    # Check each path
+    for path in possible_paths:
+        if os.path.exists(path):
+            print(f"Found background image at: {path}")
+            return path
+
+    # If not found, return None
+    print("Background image not found in any of the expected locations.")
+    return None
+
 
 # Kiểm tra trường nhập có null hay không
-def checknull(entries,loginPanel,loginService):
+def checknull(entries, loginPanel, loginService):
     nullEntry = [entry for entry in entries if not entry.get().strip()]
     if nullEntry:
         CTkMessagebox(title="Lỗi", message="Bạn cần phải điền đầy đủ thông tin")
     else:
-        check, loginE = loginService.check_login(entries[0].get(),entries[1].get(),loginPanel)
+        check, loginE = loginService.check_login(entries[0].get(), entries[1].get(), loginPanel)
         if check:
             CTkMessagebox(title="Thành công", message="Bạn đã đăng nhập thành công")
-            loginPanel.after(100, lambda: (loginPanel.destroy(), mainFrame().mainloop()))
+
+            # Store parent app reference
+            parent_app = getattr(loginPanel, 'parent_app', None)
+
+            # Use immediate execution instead of after
+            try:
+                safe_destroy(loginPanel)
+                app = mainFrame()
+                app.mainloop()
+            except Exception as e:
+                CTkMessagebox(title="Lỗi", message=f"Không thể mở giao diện chính: {str(e)}")
+                # If error occurs, try to show parent app again
+                if parent_app and parent_app.winfo_exists():
+                    parent_app.deiconify()
         else:
             CTkMessagebox(title="Thất bại", message="Sai tài khoản hoặc mật khẩu")
 
-#giao dien cammera cho thang nhan vien
+
+# giao dien camera cho thang nhan vien
 def staffPanel(loginPanel):
     FaceRecognition.App().mainloop()
-    loginPanel.destroy()
+    safe_destroy(loginPanel)
 
 
 def loginFrame():
     loginPanel = CTk()
-    loginPanel.geometry("1120x630")
+    # Configure before centering
+    loginPanel.title("Đăng nhập")
     loginPanel._set_appearance_mode("light")
     loginPanel.configure(fg_color=textClr)
-    loginPanel.title("Đăng nhập")
+
+    # Store reference to parent app (will be set from Chamcong.py)
+    loginPanel.parent_app = None
+
+    # Center window immediately
+    center_window(loginPanel, 1120, 630)
 
     loginS = LoginService()
 
@@ -150,7 +253,8 @@ def loginFrame():
                            font=("San Serif", 14, "bold"),
                            border_width=0,
                            fg_color=secondaryCrl,
-                           text_color=accentClr)
+                           text_color=accentClr,
+                           show="*")  # Hide password
     passwordTxt.grid(row=1, column=0, padx=10, pady=5, sticky="nsew")
 
     loginBtn = CTkButton(footRightFrame,
@@ -158,24 +262,87 @@ def loginFrame():
                          font=("San Serif", 18, "bold"),
                          fg_color=primaryClr,
                          border_spacing=5,
-                         command=lambda: checknull([usernameTxt, passwordTxt],loginPanel,loginS))
+                         command=lambda: checknull([usernameTxt, passwordTxt], loginPanel, loginS))
     loginBtn.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
 
-    imgLabel = CTkLabel(left,
-                        text="",
-                        image=None)
+    # Create image label
+    imgLabel = CTkLabel(left, text="", image=None)
     imgLabel.place(relx=0.5, rely=0.5, anchor="center", relwidth=1, relheight=1)
 
-    # Get absolute path to the background image
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    imgPath = os.path.join(base_dir, "..", "..", "Resources", "photo", "background.jpg")
+    # Find background image with robust approach
+    imgPath = find_background_image()
+    if not imgPath:
+        # Show warning and use solid color instead
+        left.configure(fg_color="#3C364C")  # Use a solid color as fallback
+        imgLabel.configure(text="Background Image Not Found")
+    else:
+        # Load the image when the window is properly initialized
+        def delayed_load():
+            if left.winfo_width() > 1:
+                load_background_image(left, imgLabel, imgPath)
+            else:
+                # If still not ready, try again in 100ms
+                loginPanel.after(100, delayed_load)
 
-    def on_resize(event):
-        resizeImg(left, imgLabel, imgPath)
+        # Start the delayed loading process
+        loginPanel.after(300, delayed_load)
 
-    left.bind("<Configure>", on_resize)
-    loginPanel.update()
-    resizeImg(left, imgLabel, imgPath)
+        # Handle resize events
+        def on_resize(event):
+            # Only update image if the widget still exists
+            if left.winfo_exists() and imgLabel.winfo_exists():
+                load_background_image(left, imgLabel, imgPath)
+
+        # Bind resize event handler
+        left.bind("<Configure>", on_resize)
+
+    # Define what happens when the window's close button is clicked
+    def on_close():
+        try:
+            # If there's a parent app, show it again
+            if hasattr(loginPanel, 'parent_app') and loginPanel.parent_app and loginPanel.parent_app.winfo_exists():
+                loginPanel.parent_app.deiconify()
+                safe_destroy(loginPanel)
+            else:
+                # Return to main attendance screen
+                safe_destroy(loginPanel)
+                from Chamcong import HomeFrame
+
+                root = CTk()
+                root.withdraw()
+                root.title("Hệ thống chấm công")
+                root._set_appearance_mode("dark")
+
+                home_frame = HomeFrame(root)
+                home_frame.pack(fill="both", expand=True)
+
+                center_window(root, 800, 600)
+                root.deiconify()
+                root.mainloop()
+        except Exception as e:
+            CTkMessagebox(
+                title="Lỗi",
+                message=f"Không thể quay lại màn hình chính: {str(e)}"
+            )
+            # If all else fails, just destroy the window
+            safe_destroy(loginPanel)
+
+    # Set the window close protocol
+    loginPanel.protocol("WM_DELETE_WINDOW", on_close)
+
     return loginPanel
 
-# loginFrame().mainloop()
+
+# Clean up resources on exit
+def cleanup():
+    global imgReferences
+    imgReferences.clear()
+
+
+import atexit
+
+atexit.register(cleanup)
+
+# Allow direct execution for testing
+# if __name__ == "__main__":
+#     loginFrame().mainloop()

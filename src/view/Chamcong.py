@@ -140,8 +140,9 @@ class HomeFrame(ctk.CTkFrame):
             self.master.destroy()  # Đóng frame hiện tại
             login_frame = loginFrame()
             # Căn giữa cửa sổ đăng nhập
-            login_frame.after(100, lambda: center_window(login_frame, 800, 600))
+            login_frame.after(100, lambda: center_window(login_frame, 1200, 630))
             login_frame.mainloop()
+
         except Exception as e:
             CTkMessagebox(
                 title="Lỗi",
@@ -149,7 +150,6 @@ class HomeFrame(ctk.CTkFrame):
             )
 
     def show_attendance_list(self):
-        """Hiển thị danh sách chấm công trong cửa sổ mới"""
         try:
             attendance_window = ctk.CTkToplevel(self)
             attendance_window.title("Danh sách chấm công")
