@@ -1,5 +1,6 @@
 from src.model.entity.EmployeeEntity import Employee
 from src.model.repository.EmployeeRespository import EmployeeRepository
+import os
 
 class EmployeeService:
     def __init__(self):
@@ -16,7 +17,7 @@ class EmployeeService:
     
     def createEmployee(self, employeeData):
         employee = Employee(
-            ma_nhan_vien=None,
+            ma_nhan_vien=None,  # ID sẽ được cơ sở dữ liệu tự sinh
             ma_ngql=employeeData.get('ma_ngql'),
             ma_chuc_vu=employeeData.get('ma_chuc_vu'),
             ho_ten_nhan_vien=employeeData.get('ho_ten_nhan_vien'),
@@ -39,6 +40,8 @@ class EmployeeService:
         
         if 'ma_ngql' in employeeData:
             existEmployee.ma_ngql = employeeData.get('ma_ngql')
+        if 'ma_chuc_vu' in employeeData:
+            existEmployee.ma_chuc_vu = employeeData.get('ma_chuc_vu')
         if 'ho_ten_nhan_vien' in employeeData:
             existEmployee.ho_ten_nhan_vien = employeeData.get('ho_ten_nhan_vien')
         if 'ngay_sinh' in employeeData:
@@ -57,11 +60,31 @@ class EmployeeService:
         self.validEmployee(existEmployee)
         return self.repository.save(existEmployee)
     
+    def remove_employee_image(self, url_image):
+        if not url_image:
+            return
+            
+        try:
+            script_dir = os.path.dirname(os.path.abspath(__file__))
+            project_root = os.path.abspath(os.path.join(script_dir, os.pardir, os.pardir))
+            img_path = os.path.join(project_root, url_image)
+            if os.path.exists(img_path):
+                os.remove(img_path)
+                print(f"Đã xóa ảnh: {img_path}")
+            else:
+                print(f"Không tìm thấy file ảnh để xóa: {img_path}")
+        except Exception as e:
+            print(f"Lỗi khi xóa ảnh: {e}")
+
     def deleteEmployee(self, ma_nhan_vien):
         existEmployee = self.repository.findByID(ma_nhan_vien)
         if not existEmployee:
             raise ValueError(f"Nhân viên có mã {ma_nhan_vien} không tồn tại.")
-        return self.repository.delete(ma_nhan_vien)
+        url_image = existEmployee.url_image
+        result = self.repository.delete(ma_nhan_vien)
+        if result and url_image:
+            self.remove_employee_image(url_image)
+        return result
     
     # Kiểm tra các trường bắt buộc
     def validEmployee(self, employee):
